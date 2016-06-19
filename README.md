@@ -1,3 +1,6 @@
+Tetra Tree Triangle Mesh
+========================
+
 Primitives
 ==========
 
@@ -28,4 +31,4 @@ Teselation
 ConvexHull
 ----------
 
-* http://www.qhull.org/html/# tttm2
+* http://www.qhull.org/html/
