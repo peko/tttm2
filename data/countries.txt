@@ -1,0 +1,196 @@
+Info for ../data/earth_110m.dbf
+63 Columns,  177 Records in file
+   0:  scalerank 
+   1: featurecla |   2:  labelrank |   3: sovereignt |   4:     sov_a3 
+   5:   adm0_dif |   6:      level |   7:       type |   8:      admin 
+   9:    adm0_a3 |  10:   geou_dif |  11:    geounit |  12:      gu_a3 
+  13:     su_dif |  14:    subunit |  15:      su_a3 |  16:   brk_diff 
+  17:       name |  18:  name_long |  19:     brk_a3 |  20:   brk_name 
+  21:  brk_group |  22:     abbrev |  23:     postal |  24:  formal_en 
+  25:  formal_fr |  26:  note_adm0 |  27:   note_brk |  28:  name_sort 
+  29:   name_alt |  30:  mapcolor7 |  31:  mapcolor8 |  32:  mapcolor9 
+  33: mapcolor13 |  34:    pop_est |  35: gdp_md_est |  36:   pop_year 
+  37: lastcensus |  38:   gdp_year |  39:    economy |  40: income_grp 
+  41:  wikipedia |  42:    fips_10 |  43:     iso_a2 |  44:     iso_a3 
+  45:     iso_n3 |  46:      un_a3 |  47:      wb_a2 |  48:      wb_a3 
+  49:     woe_id |  50: adm0_a3_is |  51: adm0_a3_us |  52: adm0_a3_un 
+  53: adm0_a3_wb |  54:  continent |  55:  region_un |  56:  subregion 
+  57:  region_wb |  58:   name_len |  59:   long_len |  60: abbrev_len 
+  61:       tiny |  62:   homepart |
+0: Afghanistan
+1: Angola
+2: Albania
+3: United Arab Emirates
+4: Argentina
+5: Armenia
+6: Antarctica
+7: French Southern and Antarctic Lands
+8: Australia
+9: Austria
+10: Azerbaijan
+11: Burundi
+12: Belgium
+13: Benin
+14: Burkina Faso
+15: Bangladesh
+16: Bulgaria
+17: Bahamas
+18: Bosnia and Herzegovina
+19: Belarus
+20: Belize
+21: Bolivia
+22: Brazil
+23: Brunei Darussalam
+24: Bhutan
+25: Botswana
+26: Central African Republic
+27: Canada
+28: Switzerland
+29: Chile
+30: China
+31: Côte d'Ivoire
+32: Cameroon
+33: Democratic Republic of the Congo
+34: Republic of Congo
+35: Colombia
+36: Costa Rica
+37: Cuba
+38: Northern Cyprus
+39: Cyprus
+40: Czech Republic
+41: Germany
+42: Djibouti
+43: Denmark
+44: Dominican Republic
+45: Algeria
+46: Ecuador
+47: Egypt
+48: Eritrea
+49: Spain
+50: Estonia
+51: Ethiopia
+52: Finland
+53: Fiji
+54: Falkland Islands
+55: France
+56: Gabon
+57: United Kingdom
+58: Georgia
+59: Ghana
+60: Guinea
+61: The Gambia
+62: Guinea-Bissau
+63: Equatorial Guinea
+64: Greece
+65: Greenland
+66: Guatemala
+67: Guyana
+68: Honduras
+69: Croatia
+70: Haiti
+71: Hungary
+72: Indonesia
+73: India
+74: Ireland
+75: Iran
+76: Iraq
+77: Iceland
+78: Israel
+79: Italy
+80: Jamaica
+81: Jordan
+82: Japan
+83: Kazakhstan
+84: Kenya
+85: Kyrgyzstan
+86: Cambodia
+87: Republic of Korea
+88: Kosovo
+89: Kuwait
+90: Lao PDR
+91: Lebanon
+92: Liberia
+93: Libya
+94: Sri Lanka
+95: Lesotho
+96: Lithuania
+97: Luxembourg
+98: Latvia
+99: Morocco
+100: Moldova
+101: Madagascar
+102: Mexico
+103: Macedonia
+104: Mali
+105: Myanmar
+106: Montenegro
+107: Mongolia
+108: Mozambique
+109: Mauritania
+110: Malawi
+111: Malaysia
+112: Namibia
+113: New Caledonia
+114: Niger
+115: Nigeria
+116: Nicaragua
+117: Netherlands
+118: Norway
+119: Nepal
+120: New Zealand
+121: Oman
+122: Pakistan
+123: Panama
+124: Peru
+125: Philippines
+126: Papua New Guinea
+127: Poland
+128: Puerto Rico
+129: Dem. Rep. Korea
+130: Portugal
+131: Paraguay
+132: Palestine
+133: Qatar
+134: Romania
+135: Russian Federation
+136: Rwanda
+137: Western Sahara
+138: Saudi Arabia
+139: Sudan
+140: South Sudan
+141: Senegal
+142: Solomon Islands
+143: Sierra Leone
+144: El Salvador
+145: Somaliland
+146: Somalia
+147: Serbia
+148: Suriname
+149: Slovakia
+150: Slovenia
+151: Sweden
+152: Swaziland
+153: Syria
+154: Chad
+155: Togo
+156: Thailand
+157: Tajikistan
+158: Turkmenistan
+159: Timor-Leste
+160: Trinidad and Tobago
+161: Tunisia
+162: Turkey
+163: Taiwan
+164: Tanzania
+165: Uganda
+166: Ukraine
+167: Uruguay
+168: United States
+169: Uzbekistan
+170: Venezuela
+171: Vietnam
+172: Vanuatu
+173: Yemen
+174: South Africa
+175: Zambia
+176: Zimbabwe
