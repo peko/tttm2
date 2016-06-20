@@ -83,11 +83,14 @@ update_point(
 }
 
 mesh_t*
-mesh_from_shape(shape_t* shape) {
+mesh_from_shape(const shape_t* shape) {
+    
+    assert(shape != NULL);
+
     mesh_t* mesh = mesh_new();
-    for(uint32_t i=0; i<kv_size(shape->polys); i++) {
-        poly_t* poly = &kv_A(shape->polys, i);
-        int8_t err = mesh_poly(mesh, &shape->points, poly);
+    for(uint32_t i=0; i<shape->polys.n; i++) {
+        poly_t poly = shape->polys.a[i];
+        int8_t err = mesh_poly(mesh, &shape->points.a[poly.s], poly.l);
         if(err) {
             fprintf(stderr, "Something wrong with part %d of shape\n", i);
             mesh_free(mesh);
@@ -98,35 +101,42 @@ mesh_from_shape(shape_t* shape) {
 }
 
 mesh_t*
-mesh_from_hull(shape_t* shape) {
+mesh_from_hull(const shape_t* shape) {
     
+    assert(shape != NULL);
+
+    mesh_t* mesh = mesh_new();
+    int8_t err = mesh_poly(mesh, shape->hull.a, shape->hull.n);
+    if(err) {
+        fprintf(stderr, "Cant't mesh hull, check direction.\n");
+        mesh_free(mesh);
+        return NULL;
+    }
+    return mesh;
 }
 
 // sensitive to direction cw/ccw
 int8_t 
-mesh_poly(mesh_t*         mesh, 
-          const points_v* p, 
-          const poly_t*   poly) {
-    
-    uint32_t s = poly->s;
-    uint32_t l = poly->l;
+mesh_poly(mesh_t* mesh, 
+          const point_t* p, 
+          const uint32_t l) {
 
     if(l < 3) return 1;
     
     if(l == 3) {
         mesh_add_triangle(mesh, (triangle_t) {
-            mesh_add_point(mesh, kv_A(*p, s+0)),
-            mesh_add_point(mesh, kv_A(*p, s+1)),
-            mesh_add_point(mesh, kv_A(*p, s+2)),
+            mesh_add_point(mesh, p[0]),
+            mesh_add_point(mesh, p[1]),
+            mesh_add_point(mesh, p[2]),
         });
         return 0;
     }
 
-    // setup points
+    // setup points, copy source
     part_point_t points[l];
     for(uint32_t i=0; i<l; i++) {
         points[i].is_active = true;
-        points[i].p = kv_A(*p, s+i);
+        points[i].p = p[i];
         if(i==l-1) points[i].next = &(points[  0]);
         else       points[i].next = &(points[i+1]);
         if(i==0)   points[i].prev = &(points[l-1]);

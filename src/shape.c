@@ -117,9 +117,14 @@ shape_build_hull(shape_t* shape) {
     uint32_t l = hull.n-s;
 
     // copy part of points vector
-    kv_resize(point_t, shape->hull, l);
-    shape->hull.n = l;
-    memcpy(shape->hull.a, hull.a+s, sizeof(point_t)*l);
+    kv_resize(point_t, shape->hull, l+1);
+    shape->hull.n = l+1;
+    // memcpy(shape->hull.a, hull.a+s, sizeof(point_t)*l);
+    // shape->hull.a[l] = *(hull.a+s);
+    // revert point direction
+    for(uint32_t i=0; i<=l;i++) {
+        shape->hull.a[l-i] = hull.a[s+i%l];
+    }
     kv_destroy(hull);
 }
 
