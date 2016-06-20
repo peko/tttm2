@@ -45,3 +45,7 @@ ConvexHull
 ----------
 
 * http://www.qhull.org/html/
+
+![](./img/01.png)
+![](./img/03.png)
+![](./img/04.png)
