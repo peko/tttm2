@@ -42,13 +42,13 @@ shape_free(shape_t* shape) {
     kv_destroy(shape->polys);
     kv_destroy(shape->points);
     kv_destroy(shape->hull);
-    
+
     free(shape);
 }
 
 uint32_t
 shape_add_point(
-    shape_t* shape, 
+    shape_t* shape,
     point_t  point) {
 
     assert( shape!=NULL );
@@ -68,16 +68,17 @@ shape_add_poly(
     return kv_size(shape->polys)-1;
 }
 
-shape_t* 
+// reproject shape
+shape_t*
 shape_proj(
-    const shape_t* shape, 
-    const char*    from, 
+    const shape_t* shape,
+    const char*    from,
     const char*    to   ){
 
     shape_t* projected = shape_copy(shape);
     projPJ old_prj = pj_init_plus(from);
     projPJ new_prj = pj_init_plus(to);
-    
+
     for(uint32_t i=0; i<kv_size(projected->points); i++) {
         point_t* p = &kv_A(projected->points, i);
         p->x *= DEG_TO_RAD;
@@ -86,7 +87,6 @@ shape_proj(
         if (err)
             fprintf(stderr, "ERR%d %s\n", err, pj_strerrno(err));
         assert(err == 0);
-            
     }
 
     for(uint32_t i=0; i<kv_size(projected->hull); i++) {
@@ -105,7 +105,8 @@ shape_proj(
     return projected;
 }
 
-void 
+// creat Chan's hull
+void
 shape_build_hull(shape_t* shape) {
 
     assert(shape!= NULL);
@@ -128,7 +129,8 @@ shape_build_hull(shape_t* shape) {
     kv_destroy(hull);
 }
 
-void 
+// write shape
+void
 shape_write(const shape_t* shape, FILE* fp) {
 
     assert(shape != NULL && fp != NULL);
@@ -143,9 +145,10 @@ shape_write(const shape_t* shape, FILE* fp) {
         }
         fprintf(fp, "\n");
     }
-} 
+}
 
-void 
+// write hull to file
+void
 shape_write_hull(const shape_t* shape, FILE* fp) {
 
     assert(shape != NULL && fp != NULL);
@@ -155,7 +158,7 @@ shape_write_hull(const shape_t* shape, FILE* fp) {
         fprintf(fp, "%f %f\n", p[i].x, p[i].y);
     }
     fprintf(fp, "\n");
-} 
+}
 
 ////////////
 // SHAPES //
@@ -188,49 +191,63 @@ shapes_add_shape(
     return kv_size(*shapes)-1;
 }
 
-void 
+void
 shape_write_poly(const shape_t* shape, FILE* fp) {
 
+    fprintf(fp, "# POINTS\n");
+    fprintf(fp, "# <# of vertices> <dimension (must be 2)> <# of attributes> <# of boundary markers (0 or 1)>\n");
+
+    uint32_t l = shape->points.n;
     // First line: <# of vertices> <dimension (must be 2)> <# of attributes> <# of boundary markers (0 or 1)>
-    fprintf(fp, "%zu 2 0 0\n", shape->points.n);
-    for(int i=0; i<shape->points.n; i++) {
-        point_t* p = shape->points.a+i;
+    fprintf(fp, "%u 2 0 0\n", l);
+    for(int i=0; i<l; i++) {
         // Following lines: <vertex #> <x> <y> [attributes] [boundary marker]
+        point_t* p = shape->points.a+i;
         fprintf(fp, "%d %f %f\n", i, p->x, p->y);
     }
-    fprintf(fp, "\n");
+
+    fprintf(fp, "# POLYGONS\n");
+    fprintf(fp, "# <# of segments> <# of boundary markers (0 or 1)>\n");
+
     // One line: <# of segments> <# of boundary markers (0 or 1)>
-    for(int i=0; i<shape->polys.n; i++) {
-        poly_t p = shape->polys.a[i];
-        fprintf(fp, "%d 0\n", p.l+1);
-        int j;
-        for(j=0; j<p.l-1; j++) {
-            // id pid pid
-            fprintf(fp, "%d %d %d\n", j, p.s+j, p.s+j+1);
+    fprintf(fp, "%u 0\n", l);
+    uint32_t pid = 0;
+    fprintf(fp, "# polygon %u\n", pid);
+    poly_t p = shape->polys.a[pid];
+    uint32_t e = p.s+p.l-1;
+    for(int i=0; i<l; i++) {
+        // Following lines: <segment #> <endpoint> <endpoint> [boundary marker]
+        if(i == e) {
+            fprintf(fp, "%d %d %d\n", i, i, p.s); // close part
+            pid++;
+            fprintf(fp, "# polygon %u\n", pid);
+            if(pid < shape->polys.n) {
+                p = shape->polys.a[pid];
+                e = p.s+p.l-1;
+            }
+        } else {
+            fprintf(fp, "%d %d %d\n", i, i, i+1);
         }
-        j++;
-        fprintf(fp, "%d %d %d\n", j, p.s+j, p.s);
-        fprintf(fp, "\n");
     }
     // One line: <# of holes>
     fprintf(fp, "0\n");
     // Following lines: <hole #> <x> <y>
-    
+
     // Optional line: <# of regional attributes and/or area constraints>
     // Optional following lines: <region #> <x> <y> <attribute> <maximum area>
 }
 
 // LOAD SHP / DBF
 
-shapes_v* 
+shapes_v*
 shapes_load(const char* name){
-    
+
     char buf[256];
 
     strcpy(buf,name);
     strcat(buf,".dbf");
     shapes_load_dbf(buf);
-    
+
     strcpy(buf, name);
     strcat(buf, ".shp");
     shapes_v* shapes = shapes_load_shp(buf);
@@ -238,7 +255,7 @@ shapes_load(const char* name){
     return shapes;
 }
 
-// LOAD DBF
+// extract info from dbf
 void
 shapes_load_dbf(const char* filename){
 
@@ -278,18 +295,18 @@ shapes_load_dbf(const char* filename){
        char* name_long = (char *) DBFReadStringAttribute(hDBF, i, fid);
        fprintf(stderr, "%d: %s\n", i, name_long);
     }
-    
+
     DBFClose( hDBF );
 }
 
 // LOAD SHP
 
-shapes_v* 
+shapes_v*
 shapes_load_shp(const char* filename) {
 
     shapes_v* shapes = shapes_new();
 
-    double  adfMinBound[4], 
+    double  adfMinBound[4],
             adfMaxBound[4];
 
     // Read file
@@ -309,24 +326,24 @@ shapes_load_shp(const char* filename) {
     //         adfMinBound[2], adfMinBound[3],
     //         adfMaxBound[0], adfMaxBound[1],
     //         adfMaxBound[2], adfMaxBound[3]);
-    
+
     // Iterate through shapes
     for(int i = 0; i < shapes_count; i++ ) {
         shape_t* shape = shape_new();
         SHPObject *shp = SHPReadObject(hSHP, i);
-        
+
         assert(shp != NULL);
 
         if(shp->nParts == 0) continue;
         // first part starts at point 0
         assert(shp->panPartStart[0] == 0);
-        
+
         // add points
         for(uint32_t j=0; j< shp->nVertices; j++) {
             point_t p = (point_t){shp->padfX[j], shp->padfY[j]};
             shape_add_point(shape, p);
         }
-        uint32_t parts = shp->nParts; 
+        uint32_t parts = shp->nParts;
         for (uint32_t j=0; j<parts; j++) {
             uint32_t s = shp->panPartStart[j];
             uint32_t e = (j+1 < parts) ?
@@ -347,9 +364,9 @@ shapes_load_shp(const char* filename) {
     return shapes;
 }
 
-shapes_v* 
-shapes_proj(const shapes_v* shapes, 
-            const char* from, 
+shapes_v*
+shapes_proj(const shapes_v* shapes,
+            const char* from,
             const char* to) {
 
     shapes_v* projected = shapes_new();
