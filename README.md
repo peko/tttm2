@@ -1,19 +1,30 @@
 Tetra Tree Triangle Mesh
 ========================
 
+DONE
+----
+
+* Loading and parsing ESRI Shape files throgh shapelib
+* Reprojecting data through projlib
+* Teselating shapes through ear clip algorithm
+* Convex hull for shapes through Chan's algorithm
+
+![teselaion](./img/02.png)
+
+TODO
+----
+
+* Tetra tree
+* Square tree
+* Hexa tree
+* Data integration
+
 Primitives
 ==========
 
-* Point
-* Poly
-* Triangle
-* Mesh
-
-Algorithms
-==========
-
-* Convex Hull
-* Earclip
+* point_t
+* shape_t
+* mesh_t
 
 Resources
 =========
