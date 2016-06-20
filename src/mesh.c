@@ -93,8 +93,8 @@ mesh_from_shape(const shape_t* shape) {
         int8_t err = mesh_poly(mesh, &shape->points.a[poly.s], poly.l);
         if(err) {
             fprintf(stderr, "Something wrong with part %d of shape\n", i);
-            mesh_free(mesh);
-            return NULL;
+            // mesh_free(mesh);
+            // return NULL;
         }
     }
     return mesh;

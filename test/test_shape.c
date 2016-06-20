@@ -7,6 +7,9 @@ main(int argc, char** argv){
 
     FILE* fp;
 
+    // shapes_load_dbf("../data/ne_10m_admin_0_countries.dbf");
+    // return 0;
+    
     shapes_v* shapes    = shapes_load_shp("../data/earth_110m.shp");
     shapes_v* shapes_pr = shapes_proj(shapes,
         "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
