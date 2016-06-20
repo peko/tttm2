@@ -188,46 +188,37 @@ shapes_add_shape(
     return kv_size(*shapes)-1;
 }
 
-/*
-void shapes_save_poly(shapes* shp, int shape_id, double zoom) {
+void 
+shape_write_poly(const shape_t* shape, FILE* fp) {
 
-    char file_name[256];
-    sprintf(file_name, "mesh/%s.poly", shp->name_long[shape_id]);
-
-    FILE* f = fopen(file_name, "w");
-    if(f == NULL) { printf("Can't write file\n%s\n",file_name); return; }
-    
-    int l = shp->length[shape_id];
     // First line: <# of vertices> <dimension (must be 2)> <# of attributes> <# of boundary markers (0 or 1)>
-    fprintf(f, "%d 2 0 0\n", l);
-    for(int i=0; i<l; i++) {
+    fprintf(fp, "%zu 2 0 0\n", shape->points.n);
+    for(int i=0; i<shape->points.n; i++) {
+        point_t* p = shape->points.a+i;
         // Following lines: <vertex #> <x> <y> [attributes] [boundary marker]
-        fprintf(f, "%d %f %f\n", i, shp->prX[shape_id][i]/zoom, shp->prY[shape_id][i]/zoom);
+        fprintf(fp, "%d %f %f\n", i, p->x, p->y);
     }
-    
+    fprintf(fp, "\n");
     // One line: <# of segments> <# of boundary markers (0 or 1)>
-    fprintf(f, "%d 0\n", shp->length[shape_id]);
-    int sp = 1;
-    int close_id = 0;
-    for(int i=0; i<shp->length[shape_id]; i++) {
-        // Following lines: <segment #> <endpoint> <endpoint> [boundary marker]
-        if(i == l-1 || shp->parts[shape_id][sp] == i+1) {
-            fprintf(f, "%d %d %d\n", i, i, close_id); // close part
-            close_id = i+1;                           // new start point id
-            sp++;
-        } else {
-            fprintf(f, "%d %d %d\n", i, i, i+1);
+    for(int i=0; i<shape->polys.n; i++) {
+        poly_t p = shape->polys.a[i];
+        fprintf(fp, "%d 0\n", p.l+1);
+        int j;
+        for(j=0; j<p.l-1; j++) {
+            // id pid pid
+            fprintf(fp, "%d %d %d\n", j, p.s+j, p.s+j+1);
         }
+        j++;
+        fprintf(fp, "%d %d %d\n", j, p.s+j, p.s);
+        fprintf(fp, "\n");
     }
     // One line: <# of holes>
-    fprintf(f, "0\n");
+    fprintf(fp, "0\n");
     // Following lines: <hole #> <x> <y>
     
     // Optional line: <# of regional attributes and/or area constraints>
     // Optional following lines: <region #> <x> <y> <attribute> <maximum area>
-    fclose(f);
 }
-*/
 
 // LOAD SHP / DBF
 

@@ -10,6 +10,7 @@ DONE
 * Reprojecting data through projlib
 * Teselating shapes through ear clip algorithm
 * Convex hull for shapes through Chan's algorithm
+* Eport results to bare txt format and triangle's poly
 
 ![teselaion](./img/02.png)
 
@@ -20,6 +21,7 @@ TODO
 * Square tree
 * Hexa tree
 * Data integration
+* Holes in shapes
 
 Primitives
 ==========
@@ -30,6 +32,8 @@ Primitives
 
 Resources
 =========
+
+* http://doc.cgal.org/latest/Manual/packages.html
 
 Teselation
 ----------

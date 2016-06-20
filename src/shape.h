@@ -41,6 +41,7 @@ uint32_t shape_add_poly (shape_t* s, poly_t l);
 
 void shape_write(const shape_t* shape, FILE* fp);
 void shape_write_hull(const shape_t* shape, FILE* fp);
+void shape_write_poly(const shape_t* shape, FILE* fp);
 
 ////////////
 // SHAPES // 

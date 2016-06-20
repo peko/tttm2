@@ -26,6 +26,11 @@ main(int argc, char** argv){
     shape_write(kv_A(*shapes_pr, 135), fp);
     fclose(fp);
 
+    fprintf(stderr, "write russia-laea.poly\n");
+    fp = fopen("russia-laea.poly", "w");
+    shape_write_poly(kv_A(*shapes_pr, 135), fp);
+    fclose(fp);
+
     // direct access
     shape_t* s = shapes_pr->a[135];
     shape_build_hull(s);
@@ -35,7 +40,7 @@ main(int argc, char** argv){
     shape_write_hull(s, fp);
     fclose(fp);
 
-    fprintf(stderr, "gnuplot> plot 'russia-laea-hull.txt' with lines, 'russia-laea.txt'with lines");
+    fprintf(stderr, "gnuplot> plot 'russia-laea-hull.txt' with lines, 'russia-laea.txt'with lines \n");
 
     shapes_free(shapes_pr);
     shapes_free(shapes);
