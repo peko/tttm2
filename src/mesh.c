@@ -212,6 +212,72 @@ mesh_write(const mesh_t* mesh, FILE* fp) {
         p = &kv_A(mesh->points, t->a); fprintf(fp, "%f %f\n", p->x, p->y);
         p = &kv_A(mesh->points, t->b); fprintf(fp, "%f %f\n", p->x, p->y);
         p = &kv_A(mesh->points, t->c); fprintf(fp, "%f %f\n", p->x, p->y);
+        p = &kv_A(mesh->points, t->a); fprintf(fp, "%f %f\n", p->x, p->y);
         fprintf(fp, "\n");
     }    
+}
+
+
+// Very simple reader for triangle output format
+// Please be sure it have no comments at begining of data
+mesh_t* 
+mesh_load_triangle(char* filename) {
+    
+    FILE* fp;
+    char* line;
+    char  path[256];
+    char  buf[1024];
+    char* end = NULL;
+
+    mesh_t* mesh = mesh_new();
+
+    // LOAD POINTS
+    sprintf(path, "%s.node", filename);
+    fp = fopen(path, "r");
+    if(fp == NULL) {
+        fprintf(stderr, "Can't open %s\n", path);
+        goto cleanup;
+    }
+
+    // header
+    line = fgets(buf, 1024, fp);
+    uint32_t c = strtol(buf, &end, 10); // first number - points counter
+    
+    for(uint32_t i=0; i<c; i++) {
+        line = fgets(buf, 1024, fp);
+        strtol(buf, &end, 10); //id
+        point_t p = (point_t) {
+            strtod(end, &end),
+            strtod(end, &end)}; 
+        kv_push(point_t, mesh->points, p);
+    }
+    fclose(fp);
+
+    // LOAD ELEMENTS
+    sprintf(path, "%s.ele", filename);
+    fp = fopen(path, "r");
+    if(fp == NULL) {
+        fprintf(stderr, "Can't open %s\n", path);
+        goto cleanup;
+    }
+    // header
+    line = fgets(buf, 1024, fp);
+    c = strtol(buf, &end, 10); // first number - elements counter
+    for(uint32_t i=0; i<c; i++) {
+        line = fgets(buf, 1024, fp);
+        strtol(buf, &end, 10); //id
+        triangle_t t = (triangle_t) {
+            strtol(end, &end, 10),
+            strtol(end, &end, 10),
+            strtol(end, &end, 10)};
+        kv_push(triangle_t, mesh->triangles, t);
+    }
+    fclose(fp);
+
+cleanup:
+    if(mesh->points.n == 0 || mesh->triangles.n == 0) {
+        mesh_free(mesh);
+        mesh = NULL;
+    }
+    return mesh;
 }
