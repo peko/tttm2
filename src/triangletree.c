@@ -17,7 +17,6 @@ tnode_free(tnode_t* node) {
     free(node);
 }
 
-
 ttree_t*
 ttree_new(point_t p[3]) {
 
@@ -39,8 +38,28 @@ void
 ttree_free(ttree_t* tree) {
     
     if(tree == NULL) return;
-    
+
     tnode_free(tree->root);
     kv_destroy(tree->points);
     free(tree);
+}
+
+ttree_t*
+ttree_from_points(const points_v p) {
+    point_t min = (point_t) { HUGE_VAL, HUGE_VAL};
+    point_t max = (point_t) {-HUGE_VAL,-HUGE_VAL};
+    point_t o, s;
+
+    for(uint32_t i=0; i<p.n; i++) {
+        if (p.a[i].x>max.x) max.x = p.a[i].x;
+        if (p.a[i].y>max.y) max.y = p.a[i].y;
+        if (p.a[i].x<min.x) max.x = p.a[i].x;
+        if (p.a[i].y<min.y) max.y = p.a[i].y;
+    }
+    o = (point_t) {(max.x+min.x)/2.0, (max.y+min.y)/2.0};
+    s = (point_t) { max.x-min.x     ,  max.y-min.y     };
+    double r = max(s.x, s.y);
+    
+    point_t t[3];
+    triagnle_by_incircle(t, o, r);
 }
