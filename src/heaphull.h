@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "point.h"
+#include "primitives.h"
 
 /* Compute the upper (dir = 1) or lower (dir = -1) hull of the point
  * set s.  The hull is stored in counterclockwise order beginning at

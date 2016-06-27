@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "point.h"
+#include "primitives.h"
 #include "kvec.h"
 
 ///////////

@@ -28,10 +28,10 @@ static int partition(point_t *s, int n)
 
   /* find the highest leftmost point and lowest rightmost point */
   for (i = 1; i < n; i++) {
-    if (cmp(s[i], s[l]) < 0) {
+    if (points_cmp(s[i], s[l]) < 0) {
       l = i;
     }
-    if (cmp(s[i], s[r]) > 0) {
+    if (points_cmp(s[i], s[r]) > 0) {
       r = i;
     }
   }
@@ -41,7 +41,7 @@ static int partition(point_t *s, int n)
   b = s[r];
   i = 0;
   while (i < n) {
-    if (right_turn(a, b, s[i])) {
+    if (points_is_cw(a, b, s[i])) {
       i++;
     } else {
       n--;
@@ -89,7 +89,8 @@ typedef struct {
   point_t a, b;
 } point_pair;
 
-#define slope_cmp(x, y) sign(area(x.a, x.b, x.
+// wtf
+// #define slope_cmp(x, y) sign(points_crs(x.a, x.b, x.
 
 static int select_slope(point_pair *s, int n, int r)
 {
@@ -105,7 +106,7 @@ static int select_slope(point_pair *s, int n, int r)
     dy = s[i].a.y - pivot.a.y;
     tmp.x = s[i].b.x - dx;
     tmp.y = s[i].b.y - dy;
-    ret = sign(area(pivot.a, pivot.b, tmp));
+    ret = sign(points_crs(pivot.a, pivot.b, tmp));
   }
   return 0;
 }
@@ -129,7 +130,7 @@ static int chan_compute_hull(point_t *s, int n, int dir)
   
   /* arrange points into pairs with their left endpoint first */
   for (i = 0; i < n/2; i++) {
-    if (dir*cmp(s[2*i], s[2*i+1]) > 0) {
+    if (dir*points_cmp(s[2*i], s[2*i+1]) > 0) {
       swap(s[2*i], s[2*i+1], tmp);
     }
   }
@@ -143,8 +144,8 @@ static int chan_compute_hull(point_t *s, int n, int dir)
   c.x = s[maxi].x + dx;
   c.y = s[maxi].y + dy;
   for (i = 1; i < n; i++) {
-    ar = area(s[maxi], c, s[i]);
-    if (ar > 0 || (ar == 0 && dir * cmp(s[i], s[maxi]) >= 0)) {
+    ar = points_crs(s[maxi], c, s[i]);
+    if (ar > 0 || (ar == 0 && dir * points_cmp(s[i], s[maxi]) >= 0)) {
       maxi = i;
       c.x = s[maxi].x + dx;
       c.y = s[maxi].y + dy;
@@ -156,21 +157,21 @@ static int chan_compute_hull(point_t *s, int n, int dir)
   p1 = p2 = 0;
   /* check left endpoints of pairs */
   for (i = 0; i < n; i += 2) {
-    ret = dir * cmp(s[i], s[maxi]);
+    ret = dir * points_cmp(s[i], s[maxi]);
     if (ret == 0) {
       p1++;
     } else if (ret < 0) {  
       p2++;
-    } else if (i == n-1 || left_turn(s[maxi], s[i+1], s[i])) {
+    } else if (i == n-1 || points_is_ccw(s[maxi], s[i+1], s[i])) {
       p1++;
     } 
   }
   /* check right endpoints of pairs */
   for (i = 1; i < n; i += 2) {
-    ret = dir * cmp(s[i], s[maxi]);
+    ret = dir * points_cmp(s[i], s[maxi]);
     if (ret >= 0) {
       p1++;
-    } else if (left_turn(s[i-1], s[maxi], s[i])) {
+    } else if (points_is_ccw(s[i-1], s[maxi], s[i])) {
       p2++;
     } 
   }
@@ -206,7 +207,7 @@ static int chan_compute_hull(point_t *s, int n, int dir)
     if (r[l] != eof[l]) {
       stack[2*m] = s[r[l]++];
       stack[2*m+1] = s[r[l]++];
-      assert(dir * cmp(stack[2*m], stack[2*m+1]) <= 0);
+      assert(dir * points_cmp(stack[2*m], stack[2*m+1]) <= 0);
       m++;
     }
   }
@@ -218,7 +219,7 @@ static int chan_compute_hull(point_t *s, int n, int dir)
 	if (r[l] != eof[l]) {
 	  stack[2*m] = s[r[l]++];
 	  stack[2*m+1] = s[r[l]++];
-	  assert(dir * cmp(stack[2*m], stack[2*m+1]) <= 0);
+	  assert(dir * points_cmp(stack[2*m], stack[2*m+1]) <= 0);
 	  break;
 	}
       }
@@ -228,9 +229,9 @@ static int chan_compute_hull(point_t *s, int n, int dir)
     m--;
     a = stack[2*m];
     b = stack[2*m+1];
-    assert(dir * cmp(a, b) <= 0);
+    assert(dir * points_cmp(a, b) <= 0);
     /* place left endpoint */
-    ret = dir * cmp(a, max);
+    ret = dir * points_cmp(a, max);
     if (ret == 0) {
       assert(j < jm);
       m = place(a, s, j, r, eof, stack, m);
@@ -241,7 +242,7 @@ static int chan_compute_hull(point_t *s, int n, int dir)
       m = place(a, s, k, r, eof, stack, m);
       k++;
       p2++;
-    } else if (left_turn(max, b, a)) {
+    } else if (points_is_ccw(max, b, a)) {
       assert(j < jm);
       m = place(a, s, j, r, eof, stack, m);
       j++;
@@ -252,13 +253,13 @@ static int chan_compute_hull(point_t *s, int n, int dir)
       i++;
     }
     /* place right endpoint */
-    ret = dir * cmp(b, max);
+    ret = dir * points_cmp(b, max);
     if (ret >= 0) {
       assert(j < jm);
       m = place(b, s, j, r, eof, stack, m);
       j++;
       p1++;
-    } else if (left_turn(a, max, b)) {
+    } else if (points_is_ccw(a, max, b)) {
       assert(k < km);
       m = place(b, s, k, r, eof, stack, m);
       k++;
@@ -273,7 +274,7 @@ static int chan_compute_hull(point_t *s, int n, int dir)
 
   /* handle unmatched point */
   if (n % 2 == 1) {
-    if (dir * cmp(tmp, max) < 0) {
+    if (dir * points_cmp(tmp, max) < 0) {
       assert(k < km);
       s[k++] = tmp;
       p2++;
@@ -290,10 +291,10 @@ static int chan_compute_hull(point_t *s, int n, int dir)
   assert(j == jm);
   assert(k == km);
   for (l = i; l < j; l++) {
-    assert(dir * cmp(s[l], max) >= 0);
+    assert(dir * points_cmp(s[l], max) >= 0);
   }
   for (l = j; l < k; l++) {
-    assert(dir * cmp(s[l], max) < 0);
+    assert(dir * points_cmp(s[l], max) < 0);
   }
 #endif /*DEBUG*/
 
@@ -305,9 +306,9 @@ static int chan_compute_hull(point_t *s, int n, int dir)
 
 #ifdef DEBUG
   /* verify result */
-  assert(cmp(s[x+m], max) == 0);
+  assert(points_cmp(s[x+m], max) == 0);
   for (l = 0; l < m-1; l++) {
-    assert(dir * cmp(s[x+l], s[x+l+1]) >= 0);
+    assert(dir * points_cmp(s[x+l], s[x+l+1]) >= 0);
   }
 #endif /*DEBUG*/
 
@@ -317,9 +318,9 @@ static int chan_compute_hull(point_t *s, int n, int dir)
 
 #ifdef DEBUG
   /* verify result */
-  assert(cmp(s[y], max) == 0);
+  assert(points_cmp(s[y], max) == 0);
   for (l = y; l < n-1; l++) {
-    assert(dir * cmp(s[l], s[l+1]) >= 0);
+    assert(dir * points_cmp(s[l], s[l+1]) >= 0);
   }
 #endif /*DEBUG*/
 

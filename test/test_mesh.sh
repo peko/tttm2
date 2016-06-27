@@ -1,6 +1,6 @@
 src="../src"
 
-dep="$src/mesh.c $src/shape.c $src/point.c"
+dep="$src/mesh.c $src/shape.c $src/primitives.c"
 dep="$dep $src/chanhull.c $src/heaphull.c $src/throwaway.c"
 
 lib="-lshp -lproj -lm"

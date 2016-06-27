@@ -20,7 +20,7 @@ TODO
 * Tetra tree
 * Square tree
 * Hexa tree
-* Data integration
+* Data integration / point cloud
 * Holes in shapes
 
 Primitives
@@ -34,6 +34,7 @@ Resources
 =========
 
 * http://doc.cgal.org/latest/Manual/packages.html
+* https://people.sc.fsu.edu/~jburkardt/c_src/geometry/geometry.html
 
 Teselation
 ----------

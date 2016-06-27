@@ -1,6 +1,6 @@
 src="../src"
 
-dep="$src/shape.c $src/point.c"
+dep="$src/shape.c $src/primitives.c"
 chp="$src/chanhull"
 chl="$chp/chanhull.c $chp/heaphull.c $chp/throwaway.c"
 

@@ -1,8 +1,7 @@
 #include <stdint.h>
 
-#include "point.h"
+#include "primitives.h"
 #include "mesh.h"
-#include "point_t"
 
 typedef struct point_part_t point_part_t;
 typedef struct point_part_t {

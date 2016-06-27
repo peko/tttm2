@@ -43,18 +43,18 @@ int throwaway_heuristic(point_t *s, int n)
   }
   hull8[0] = s[maxi[0]];
   for (k = 1, j = 1; j < 8; j++) {
-    if (cmp(s[maxi[j]], hull8[k-1]) != 0) {
+    if (points_cmp(s[maxi[j]], hull8[k-1]) != 0) {
       hull8[k++] = s[maxi[j]];
     } 
   }
-  if (k > 1 && cmp(hull8[0], hull8[k-1]) == 0) {
+  if (k > 1 && points_cmp(hull8[0], hull8[k-1]) == 0) {
     k--;
   }
   i = 0;
   while (i < n) {    
     for (j = 0; j < k; j++) {
-      if (right_turn(hull8[j], hull8[(j+1)%8], s[i])
-	  || cmp(hull8[j], s[i]) == 0) {
+      if (points_is_cw(hull8[j], hull8[(j+1)%8], s[i])
+	  || points_cmp(hull8[j], s[i]) == 0) {
 	break;
       }
     }

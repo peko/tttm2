@@ -33,10 +33,10 @@ static void heapify(point_t *s, int n, int i, int dir)
   do {
     done = false;
     min = i;
-    if (left(i) < n && dir*cmp(s[left(i)], s[min]) < 0) {
+    if (left(i) < n && dir*points_cmp(s[left(i)], s[min]) < 0) {
       min = left(i);
     }
-    if (right(i) < n && dir*cmp(s[right(i)], s[min]) < 0) {
+    if (right(i) < n && dir*points_cmp(s[right(i)], s[min]) < 0) {
       min = right(i);
     }
     if (min != i) {
@@ -71,10 +71,10 @@ static int partition(point_t *s, int n)
 
   /* find the highest leftmost point and lowest rightmost point */
   for (i = 1; i < n; i++) {
-    if (cmp(s[i], s[l]) < 0) {
+    if (points_cmp(s[i], s[l]) < 0) {
       l = i;
     }
-    if (cmp(s[i], s[r]) > 0) {
+    if (points_cmp(s[i], s[r]) > 0) {
       r = i;
     }
   }
@@ -84,7 +84,7 @@ static int partition(point_t *s, int n)
   b = s[r];
   i = 0;
   while (i < n) {
-    if (right_turn(a, b, s[i])) {
+    if (points_is_cw(a, b, s[i])) {
       i++;
     } else {
       n--;
@@ -104,7 +104,7 @@ static int heap_compute_hull(point_t *s, int n, int tos, int h, int dir)
 
   build_heap(s, n, dir);
   while (n-- > 0) {
-    while (h > 1 && !right_turn(s[tos+1], s[tos], s[0])) {
+    while (h > 1 && !points_is_cw(s[tos+1], s[tos], s[0])) {
       tos++;
       h--;
     }
@@ -130,7 +130,7 @@ int heaphull2(point_t *s, int n)
   j = heap_compute_hull(s+i, n-i, n-i, 0, 1);     /* construct upper hull */
   i = heap_compute_hull(s, i, j+i, 1, -1);        /* construct lower hull */
   /* cleanup lower hull */
-  while (i < n-2 && !right_turn(s[i+1], s[i], s[n-1])) {
+  while (i < n-2 && !points_is_cw(s[i+1], s[i], s[n-1])) {
     i++;
   }
   return i;

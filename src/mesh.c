@@ -58,11 +58,11 @@ update_point(
     v1 = v->prev;
     v3 = v->next;
 
-    v->is_convex = point_is_convex(&v1->p, &v->p, &v3->p);
-    vec1 = point_dif(&v1->p, &v->p);
-    vec3 = point_dif(&v3->p, &v->p);
-    vec1 = point_nrm(&vec1);
-    vec3 = point_nrm(&vec3);
+    v->is_convex = points_is_cw(v1->p, v->p, v3->p);
+    vec1 = points_dif(v1->p, v->p);
+    vec3 = points_dif(v3->p, v->p);
+    vec1 = point_nrm(vec1);
+    vec3 = point_nrm(vec3);
 
     v->angle = vec1.x*vec3.x + vec1.y*vec3.y;
 
@@ -72,7 +72,7 @@ update_point(
             if((points[j].p.x ==  v->p.x) && (points[j].p.y ==  v->p.y)) continue;
             if((points[j].p.x == v1->p.x) && (points[j].p.y == v1->p.y)) continue;
             if((points[j].p.x == v3->p.x) && (points[j].p.y == v3->p.y)) continue;
-            if(point_is_inside(&v1->p, &v->p, &v3->p, &points[j].p)) {
+            if(point_is_inside( points[j].p, v1->p, v->p, v3->p)) {
                 v->is_ear = false;
                 break;
             }

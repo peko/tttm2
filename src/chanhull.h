@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "point.h"
+#include "primitives.h"
 
 /* Compute the convex hull of the point set s.  The hull is stored at 
  * location s+(return value) sorted in counterclockwise order

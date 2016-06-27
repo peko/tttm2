@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "point.h"
+#include "primitives.h"
 
 /* Preprocess the point set s by finding extreme points in 8
  * directions and eliminating points contained in the interior of the

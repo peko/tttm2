@@ -2,9 +2,8 @@
 
 #include <stdint.h>
 
-#include "point.h"
+#include "primitives.h"
 #include "shape.h"
-#include "triangle.h"
 
 typedef struct {
     kvec_t(point_t) points;
