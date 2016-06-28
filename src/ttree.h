@@ -17,6 +17,18 @@ ttree_t* ttree_new();
 void ttree_free(ttree_t* tt);
 
 ttree_t* ttree_from_points(const points_v p);
+ttree_t* ttree_from_mesh(
+    points_v*    points, 
+    triangles_v* triangles, 
+    uint8_t depth);
+
+void
+ttree_split_by_mesh(
+    ttree_t*     tt,
+    tnode_t*     tn,
+    points_v*    points,
+    triangles_v* triagles,
+    uint8_t      depth);
 
 void 
 ttree_split_node(

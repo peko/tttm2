@@ -84,12 +84,18 @@ ttree_from_points(const points_v p) {
 
 ttree_t*
 ttree_from_mesh(
-    const mesh_t* m,
-    uint8_t depth) {
+    points_v*    points,
+    triangles_v* triangles,
+    uint8_t      depth) {
+
+
+    // must have 1+ triangle
+    if(triangles->n == 0) return NULL;
 
     point_t o, s;
-    
-    points_v p = m->points;
+
+    points_v p = *points;
+
 
     { // max/min shadowing
         point_t min = (point_t) { HUGE_VAL, HUGE_VAL};
@@ -111,36 +117,73 @@ ttree_from_mesh(
 
     ttree_t* ttree = ttree_new(t);
 
-    ttree_split_by_mesh(ttree, ttree->root, m, depth);
+    ttree_split_by_mesh(ttree, ttree->root, points, triangles, depth);
 
     return ttree;
 }
 
 void
 ttree_split_by_mesh(
-    ttree_t* tt,
-    tnode_t* tn,
-    mesh_t*  m,
-    uint8_t  depth){
+    ttree_t*     tt,
+    tnode_t*     tn,
+    points_v*    points,
+    triangles_v* triangles,
+    uint8_t      depth) {
     
     point_t *a1, *b1, *c1;
     point_t *a2, *b2, *c2;
-    a1 = &tt->points[tn->triangle.a];
-    b1 = &tt->points[tn->triangle.b];
-    c1 = &tt->points[tn->triangle.c];
+    a1 = &tt->points.a[tn->triangle.a];
+    b1 = &tt->points.a[tn->triangle.b];
+    c1 = &tt->points.a[tn->triangle.c];
+    printf("%u: %zu %zu %zu\n", depth, tn->triangle.a, tn->triangle.b, tn->triangle.c);
 
     point_t ab, bc, ca;
-    ab = point_mid(a1,b1);
-    bc = point_mid(b1,c1);
-    ca = point_mid(c1,a1);
+    ab = point_mid(*a1, *b1);
+    bc = point_mid(*b1, *c1);
+    ca = point_mid(*c1, *a1);
 
-    for(uint32_t i=0; i<m->triangles.n; i++) {
-        a2 = &m->points[m->triangles.a[i].a]
-        b2 = &m->points[m->triangles.a[i].b]
-        c2 = &m->points[m->triangles.a[i].c]
-        if(triangles_intersects(a1, b1, c1, a2, b2, c2)){
+    // intersected triangles pathed down to children
+    triangles_v tr[3];
+    kv_init(tr[0]);
+    kv_init(tr[1]);
+    kv_init(tr[2]);
+    kv_init(tr[3]);
+
+    // iterate through all triangles of mesh 
+    // and put intersected to childs triangle vectors 
+    point_t* cr[4][3] = {
+        {&ab,&bc, &ca},
+        {a1 ,&ab, &ca},
+        {b1 ,&bc, &ab},
+        {c1 ,&ca, &bc},
+    };
+
+    for(uint32_t i=0; i<triangles->n; i++) {
+        triangle_t t = triangles->a[i];
+        a2 = &points->a[t.a];
+        b2 = &points->a[t.b];
+        c2 = &points->a[t.c];
+        for(uint8_t i=0; i<4; i++) {
+            if(triangles_intersects(cr[i][0], cr[i][1], cr[i][2], a2, b2, c2))
+                kv_push(triangle_t, tr[i], triangles->a[i]);
         }
     }
+
+    for(uint8_t i=0; i<4; i++) {
+        if(tr[i].n>0){
+            printf("new triangle\n");
+            tn->children[i] = tnode_new(triangle_new(&tt->points, cr[i][0], cr[i][1], cr[i][2]));
+            if(depth>0) {
+                printf("split %d\n", i);
+                ttree_split_by_mesh(tt, tn->children[i], points, &tr[i], depth-1);
+            }  
+        } 
+    } 
+
+    kv_destroy(tr[3]);
+    kv_destroy(tr[2]);
+    kv_destroy(tr[1]);
+    kv_destroy(tr[0]);
 
 }
 

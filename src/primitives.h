@@ -96,5 +96,7 @@ triangle_new(
 void 
 triangle_by_incircle(point_t p[3], point_t o, double r);
 
-// bool
-// triangle_intersect() {}
+bool 
+triangles_intersects(
+    point_t* a1, point_t* b1, point_t* c1, 
+    point_t* a2, point_t* b2, point_t* c2);

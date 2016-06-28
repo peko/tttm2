@@ -2,6 +2,7 @@
 #include <assert.h>
 
 #include "shape.h"
+#include "mesh.h"
 #include "ttree.h"
 
 
@@ -24,14 +25,23 @@ main(int argc, char** argv) {
     fp = fopen("ttree-shape.txt", "w");
     shape_write(shape, fp);
     fclose(fp);
-
-    ttree_t* tree = ttree_from_points(shape->points);
+    
+    mesh_t* mesh = mesh_from_shape(shape);
     fprintf(stderr, "Write ttree-mesh.txt\n");
     fp = fopen("ttree-mesh.txt", "w");
-    ttree_write(tree, fp);
+    mesh_write(mesh, fp);
     fclose(fp);
-    ttree_free(tree);
 
+    ttree_t* tree = ttree_from_mesh(&mesh->points, &mesh->triangles, 1);
+    if(tree != NULL) {
+        fprintf(stderr, "Write ttree-ttree.txt\n");
+        fp = fopen("ttree-ttree.txt", "w");
+        ttree_write(tree, fp);
+        fclose(fp);
+        ttree_free(tree);
+    }
+
+    mesh_free(mesh);
     shapes_free(shapes_pr);
     shapes_free(shapes);
 
