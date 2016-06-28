@@ -4,16 +4,20 @@
 // POINT_T //
 /////////////
 
-// converts an point p from cartesian space
-// to baricentric space of triangle abc
-//    b
-//   / \
-//  / p \
-// a-----c
-// cost: *8 +9
+/*
+Barycentric x axis for a point
+   
+          a       1    h = sqrt(3)/2
+         / \      |
+        /   \    2/3
+       *-----*   1/2
+      / \ o / \  1/3
+     /   \ /   \  |
+    c-----*-----b 0
+*/
 
 point_t
-point_to_baricentric(
+point_to_barycentric(
     const point_t* p,
     const point_t* a, 
     const point_t* b, 
@@ -53,13 +57,28 @@ point_is_inside_bc(
     const point_t* b,
     const point_t* c) {
 
-    point_t bc = point_to_baricentric(p, a, b, c);
+    point_t bc = point_to_barycentric(p, a, b, c);
     return (bc.x >= 0 && bc.y >= 0 && bc.x+bc.y<=1) ? true : false;
 }
 
 //////////////
 // TRIANGLE //
 //////////////
+
+triangle_t
+triangle_new(
+    points_v* p, 
+    point_t*  a,
+    point_t*  b,
+    point_t*  c) {
+
+    uint32_t s = p->n;
+    kv_push(point_t, *p, *a);
+    kv_push(point_t, *p, *b);
+    kv_push(point_t, *p, *c);
+
+    return (triangle_t) {s, s+1, s+2};
+}
 
 void
 triangle_by_incircle(point_t t[3], point_t o, double r){

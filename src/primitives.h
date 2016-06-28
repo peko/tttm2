@@ -36,6 +36,7 @@ typedef kvec_t(point_t) points_v;
 #define points_dif(a, b) ((point_t){(a).x-(b).x, (a).y-(b).y})
 #define point_mag(a) sqrt((a).x*(a).x+(a).y*(a).y)
 #define point_nrm(a) ((point_t){(a).x/point_mag(a), (a).y/point_mag(a)})
+#define point_mid(a, b) ((point_t){((a).x+(b).x)/2.0, ((a).y+(b).y)/2.0})
 
 // point_t point_sum(const point_t* p1, const point_t* p2); // sum
 // point_t point_dif(const point_t* p1, const point_t* p2); // difference
@@ -49,7 +50,7 @@ typedef kvec_t(point_t) points_v;
 
 // baricentric
 point_t 
-point_to_baricentric(
+point_to_barycentric(
     const point_t* p, 
     const point_t* a, 
     const point_t* b, 
@@ -84,7 +85,15 @@ typedef struct {
     uint32_t a, b, c;
 } triangle_t;
 
-void triangle_by_incircle(point_t p[3], point_t o, double r);
+triangle_t
+triangle_new(
+    points_v* p, 
+    point_t*  a,
+    point_t*  b,
+    point_t*  c);
+
+void 
+triangle_by_incircle(point_t p[3], point_t o, double r);
 
 // bool
 // triangle_intersect() {}
