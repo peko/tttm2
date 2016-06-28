@@ -175,7 +175,7 @@ ttree_split_by_mesh(
             tn->children[i] = tnode_new(triangle_new(&tt->points, cr[i][0], cr[i][1], cr[i][2]));
             if(depth>0) {
                 printf("split %d\n", i);
-                ttree_split_by_mesh(tt, tn->children[i], points, &tr[i], depth-1);
+                ttree_split_by_mesh(tt, tn->children[i], points, triangles, depth-1);
             }  
         } 
     } 
