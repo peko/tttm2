@@ -86,3 +86,53 @@ triangle_by_incircle(point_t t[3], point_t o, double r){
     t[1].x = o.x + r*SQRT3; t[1].y = o.y - r  ;
     t[2].x = o.x - r*SQRT3; t[2].y = o.y - r  ;
 }
+
+bool 
+lines_intersects(
+    point_t* a1, 
+    point_t* b1,
+    point_t* a2,
+    point_t* b2) {
+
+    double d, u, v;
+
+    d = (b2->y - a2->y) * (b1->x - a1->x) - 
+        (b2->x - a2->x) * (b1->y - a1->y);
+    u = (b2->x - a2->x) * (a1->y - a2->y) - 
+        (b2->y - a2->y) * (a1->x - a2->x);
+    v = (b1->x - a1->x) * (a1->y - a2->y) - 
+        (b1->y - a1->y) * (a1->x - a2->x);
+
+    if(d<0) {
+        u = -u;
+        v = -v;
+        d = -d;
+    }
+
+    return 0<=u && u<=d && 0<=v && v<=d;
+}
+
+bool 
+triangles_intersects(
+    point_t* a1, point_t* b1, point_t* c1, 
+    point_t* a2, point_t* b2, point_t* c2) {
+
+    if(lines_intersects(a1, b1, a2, b2)) return true;
+    if(lines_intersects(a1, b1, b2, c2)) return true;
+    if(lines_intersects(a1, b1, c2, a2)) return true;
+    
+    if(lines_intersects(a1, c1, a2, b2)) return true;
+    if(lines_intersects(a1, c1, b2, c2)) return true;
+    if(lines_intersects(a1, c1, c2, a2)) return true;
+
+    if(point_is_inside_bc(a2, a1, b1, c1)) return true;
+    if(point_is_inside_bc(b2, a1, b1, c1)) return true;
+    if(point_is_inside_bc(c2, a1, b1, c1)) return true;
+    
+    if(point_is_inside_bc(a2, a2, b2, c2)) return true;
+    if(point_is_inside_bc(b2, a2, b2, c2)) return true;
+    if(point_is_inside_bc(c2, a2, b2, c2)) return true;
+
+    return false;
+}
+

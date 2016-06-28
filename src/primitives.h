@@ -84,6 +84,7 @@ point_is_inside_bc(
 typedef struct {
     uint32_t a, b, c;
 } triangle_t;
+typedef kvec_t(triangle_t) triangles_v;
 
 triangle_t
 triangle_new(

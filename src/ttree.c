@@ -82,6 +82,68 @@ ttree_from_points(const points_v p) {
     return ttree;
 }
 
+ttree_t*
+ttree_from_mesh(
+    const mesh_t* m,
+    uint8_t depth) {
+
+    point_t o, s;
+    
+    points_v p = m->points;
+
+    { // max/min shadowing
+        point_t min = (point_t) { HUGE_VAL, HUGE_VAL};
+        point_t max = (point_t) {-HUGE_VAL,-HUGE_VAL};
+
+        for(uint32_t i=0; i<p.n; i++) {
+            if (p.a[i].x>max.x) max.x = p.a[i].x;
+            if (p.a[i].y>max.y) max.y = p.a[i].y;
+            if (p.a[i].x<min.x) min.x = p.a[i].x;
+            if (p.a[i].y<min.y) min.y = p.a[i].y;
+        }
+        o = (point_t) {(max.x+min.x)/2.0, (max.y+min.y)/2.0};
+        s = (point_t) { max.x-min.x     ,  max.y-min.y     };
+    }
+    double r = s.x>s.y ? s.x : s.y;
+    
+    point_t t[3];
+    triangle_by_incircle(t, o, r);
+
+    ttree_t* ttree = ttree_new(t);
+
+    ttree_split_by_mesh(ttree, ttree->root, m, depth);
+
+    return ttree;
+}
+
+void
+ttree_split_by_mesh(
+    ttree_t* tt,
+    tnode_t* tn,
+    mesh_t*  m,
+    uint8_t  depth){
+    
+    point_t *a1, *b1, *c1;
+    point_t *a2, *b2, *c2;
+    a1 = &tt->points[tn->triangle.a];
+    b1 = &tt->points[tn->triangle.b];
+    c1 = &tt->points[tn->triangle.c];
+
+    point_t ab, bc, ca;
+    ab = point_mid(a1,b1);
+    bc = point_mid(b1,c1);
+    ca = point_mid(c1,a1);
+
+    for(uint32_t i=0; i<m->triangles.n; i++) {
+        a2 = &m->points[m->triangles.a[i].a]
+        b2 = &m->points[m->triangles.a[i].b]
+        c2 = &m->points[m->triangles.a[i].c]
+        if(triangles_intersects(a1, b1, c1, a2, b2, c2)){
+        }
+    }
+
+}
+
 void 
 ttree_split_node(
     ttree_t* tt, 

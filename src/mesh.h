@@ -6,8 +6,8 @@
 #include "shape.h"
 
 typedef struct {
-    kvec_t(point_t) points;
-    kvec_t(triangle_t) triangles;
+    points_v points;
+    triangles_v triangles;
 } mesh_t;
 
 mesh_t* mesh_new();
