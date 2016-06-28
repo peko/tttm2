@@ -19,13 +19,19 @@ void ttree_free(ttree_t* tt);
 ttree_t* ttree_from_points(const points_v p);
 
 void 
-ttree_split_node(ttree_t* t, tnode_t* n, point_t* p);
+ttree_split_node(
+    ttree_t* t, 
+    tnode_t* n, 
+    point_t* p);
 
 void
-ttree_write(ttree_t* tree, FILE* fp);
+ttree_write(
+    ttree_t* tree, 
+    FILE*    fp);
 
 void
 tnode_write(
-    FILE* fp,
+    tnode_t* tn,
     ttree_t* tt,
-    tnode_t* tn);
+    uint32_t d,
+    FILE*    fp);

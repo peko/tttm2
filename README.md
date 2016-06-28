@@ -62,5 +62,10 @@ Examples
 ![](./img/09.png)
 ![](./img/10.png)
 ![](./img/11.png)
+
+Triangle Tree
+-------------
+
+![](./img/14.png)
 ![](./img/12.png)
 ![](./img/13.png)

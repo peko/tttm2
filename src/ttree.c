@@ -134,38 +134,46 @@ ttree_split_node(
 }
 
 void
-ttree_write(ttree_t* tree, FILE* fp) {
-    tnode_write(fp, tree, tree->root);
+ttree_write(
+    ttree_t* tree, 
+    FILE*    fp){
+    tnode_write(tree->root, tree, 0, fp);
 }
 
 static void
 triangle_write(
-    FILE* fp,
-    points_v* p, 
-    triangle_t* t) {
+    triangle_t* t,
+    points_v*   p, 
+    uint32_t    d,
+    FILE*       fp){
     
     point_t a,b,c;
     a = p->a[t->a];
     b = p->a[t->b];
     c = p->a[t->c];
 
-    fprintf(fp, "%f %f\n", a.x, a.y); 
-    fprintf(fp, "%f %f\n", b.x, b.y); 
-    fprintf(fp, "%f %f\n", c.x, c.y); 
-    fprintf(fp, "%f %f\n", a.x, a.y);
+    fprintf(fp, "%f %f %d\n", a.x, a.y, d); 
+    fprintf(fp, "%f %f %d\n", b.x, b.y, d); 
+    fprintf(fp, "%f %f %d\n", c.x, c.y, d); 
+    fprintf(fp, "%f %f %d\n", a.x, a.y, d);
     fprintf(fp, "\n"); 
 } 
 
 void
 tnode_write(
-    FILE* fp,
+    tnode_t* tn,
     ttree_t* tt,
-    tnode_t* tn) {
+    uint32_t d,
+    FILE*    fp){
 
-    triangle_write(fp, &tt->points, &tn->triangle);
+    // if (tn->children[0] == NULL&&
+        // tn->children[1] == NULL&&
+        // tn->children[2] == NULL&&
+        // tn->children[3] == NULL)
+    triangle_write(&tn->triangle, &tt->points, d, fp);
 
-    if(tn->children[0]) tnode_write(fp, tt, tn->children[0]);
-    if(tn->children[1]) tnode_write(fp, tt, tn->children[1]);
-    if(tn->children[2]) tnode_write(fp, tt, tn->children[2]);
-    if(tn->children[3]) tnode_write(fp, tt, tn->children[3]);
+    if(tn->children[0]) tnode_write(tn->children[0], tt, d+1, fp);
+    if(tn->children[1]) tnode_write(tn->children[1], tt, d+1, fp);
+    if(tn->children[2]) tnode_write(tn->children[2], tt, d+1, fp);
+    if(tn->children[3]) tnode_write(tn->children[3], tt, d+1, fp);
 }
