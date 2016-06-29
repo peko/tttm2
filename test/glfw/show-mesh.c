@@ -71,7 +71,7 @@ load_mesh(
         double x = strtod(line, &e); 
         double y = strtod(   e, &e);
         int    d = strtol(   e, &e, 10);
-        if(d!=6) continue;
+        if(d!=8) continue;
 
         if(x>maxx) maxx=x; if(y>maxy) maxy=y;
         if(x<minx) minx=x; if(y<miny) miny=y;
@@ -228,7 +228,7 @@ int main(int argc, char** argv) {
 
         glUseProgram(program);
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
-        glDrawArrays(GL_POINTS, 0, vertices.n);
+        glDrawArrays(GL_TRIANGLES, 0, vertices.n);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
