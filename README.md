@@ -3,6 +3,8 @@ Tetra Tree Triangle Mesh
 
 Some experiments with geo data
 
+![](./img/15.png)
+
 DONE
 ----
 
@@ -66,7 +68,6 @@ Examples
 Triangle Tree
 -------------
 
-![](./img/15.png)
 ![](./img/14.png)
 ![](./img/12.png)
 ![](./img/13.png)
