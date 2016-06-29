@@ -71,7 +71,7 @@ load_mesh(
         double x = strtod(line, &e); 
         double y = strtod(   e, &e);
         int    d = strtol(   e, &e, 10);
-        if(d!=7) continue;
+        if(d!=6) continue;
 
         if(x>maxx) maxx=x; if(y>maxy) maxy=y;
         if(x<minx) minx=x; if(y<miny) miny=y;
@@ -221,8 +221,8 @@ int main(int argc, char** argv) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         mat4x4_identity(m);
-        mat4x4_rotate_Z(m, m, mousey/100.0);
-        mat4x4_rotate_Y(m, m, mousex/100.0);
+        // mat4x4_rotate_Z(m, m, mousey/1000.0);
+        // mat4x4_rotate_Y(m, m, mousex/1000.0);
         mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
         mat4x4_mul(mvp, p, m);
 
