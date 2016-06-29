@@ -130,17 +130,17 @@ ttree_split_by_mesh(
     triangles_v* triangles,
     uint8_t      depth) {
     
-    point_t *a1, *b1, *c1;
-    point_t *a2, *b2, *c2;
-    a1 = &tt->points.a[tn->triangle.a];
-    b1 = &tt->points.a[tn->triangle.b];
-    c1 = &tt->points.a[tn->triangle.c];
+    point_t a1, b1, c1;
+    point_t a2, b2, c2;
+    a1 = tt->points.a[tn->triangle.a];
+    b1 = tt->points.a[tn->triangle.b];
+    c1 = tt->points.a[tn->triangle.c];
     printf("%u: %zu %zu %zu\n", depth, tn->triangle.a, tn->triangle.b, tn->triangle.c);
 
     point_t ab, bc, ca;
-    ab = point_mid(*a1, *b1);
-    bc = point_mid(*b1, *c1);
-    ca = point_mid(*c1, *a1);
+    ab = point_mid(a1, b1);
+    bc = point_mid(b1, c1);
+    ca = point_mid(c1, a1);
 
     // intersected triangles pathed down to children
     triangles_v tr[3];
@@ -152,33 +152,42 @@ ttree_split_by_mesh(
     // iterate through all triangles of mesh 
     // and put intersected to childs triangle vectors 
     point_t* cr[4][3] = {
-        {&ab,&bc, &ca},
-        {a1 ,&ab, &ca},
-        {b1 ,&bc, &ab},
-        {c1 ,&ca, &bc},
+        {&ab, &bc, &ca},
+        {&a1, &ab, &ca},
+        {&b1, &bc, &ab},
+        {&c1, &ca, &bc},
     };
 
-    for(uint32_t i=0; i<triangles->n; i++) {
-        triangle_t t = triangles->a[i];
-        a2 = &points->a[t.a];
-        b2 = &points->a[t.b];
-        c2 = &points->a[t.c];
+    for(uint32_t j=0; j<triangles->n; j++) {
+        triangle_t t = triangles->a[j];
+        a2 = points->a[t.a];
+        b2 = points->a[t.b];
+        c2 = points->a[t.c];
         for(uint8_t i=0; i<4; i++) {
-            if(triangles_intersects(cr[i][0], cr[i][1], cr[i][2], a2, b2, c2))
-                kv_push(triangle_t, tr[i], triangles->a[i]);
+            if(triangles_intersects(cr[i][0], cr[i][1], cr[i][2], &a2, &b2, &c2))
+                kv_push(triangle_t, tr[i], triangles->a[j]);
         }
     }
 
+    printf("Depth: %d\n", depth);
     for(uint8_t i=0; i<4; i++) {
+        
+        printf("Child %d intersects with %d tris\n", i, tr[i].n);
         if(tr[i].n>0){
-            printf("new triangle\n");
+            printf("Create child: %d\n", i);
             tn->children[i] = tnode_new(triangle_new(&tt->points, cr[i][0], cr[i][1], cr[i][2]));
-            if(depth>0) {
-                printf("split %d\n", i);
-                ttree_split_by_mesh(tt, tn->children[i], points, triangles, depth-1);
-            }  
         } 
-    } 
+    }
+
+    if(depth>0) {
+        for(uint8_t i=0; i<4; i++) {
+            if(tn->children[i] != NULL) {
+                printf("And split %d\n", i);
+                ttree_split_by_mesh(tt, tn->children[i], points, &tr[i], depth-1);
+            }
+        }
+    }
+
 
     kv_destroy(tr[3]);
     kv_destroy(tr[2]);
@@ -257,10 +266,9 @@ triangle_write(
     b = p->a[t->b];
     c = p->a[t->c];
 
-    fprintf(fp, "%f %f %d\n", a.x, a.y, d); 
-    fprintf(fp, "%f %f %d\n", b.x, b.y, d); 
-    fprintf(fp, "%f %f %d\n", c.x, c.y, d); 
-    fprintf(fp, "%f %f %d\n", a.x, a.y, d);
+    fprintf(fp, "%f %f %d %d\n", a.x, a.y, d, d); 
+    fprintf(fp, "%f %f %d %d\n", b.x, b.y, d, d); 
+    fprintf(fp, "%f %f %d %d\n", c.x, c.y, d, d); 
     fprintf(fp, "\n"); 
 } 
 

@@ -97,6 +97,13 @@ void
 triangle_by_incircle(point_t p[3], point_t o, double r);
 
 bool 
+lines_intersects(
+    const point_t* a1, 
+    const point_t* b1,
+    const point_t* a2,
+    const point_t* b2);
+
+bool 
 triangles_intersects(
-    point_t* a1, point_t* b1, point_t* c1, 
-    point_t* a2, point_t* b2, point_t* c2);
+    const point_t* a1, const point_t* b1, const point_t* c1, 
+    const point_t* a2, const point_t* b2, const point_t* c2);
