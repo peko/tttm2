@@ -228,7 +228,7 @@ int main(int argc, char** argv) {
 
         glUseProgram(program);
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
-        glDrawArrays(GL_TRIANGLES, 0, vertices.n);
+        glDrawArrays(GL_POINTS, 0, vertices.n);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
