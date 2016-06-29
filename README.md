@@ -13,16 +13,17 @@ DONE
 * Teselating shapes through ear clip algorithm
 * Convex hull for shapes through Chan's algorithm
 * Eport results to bare txt format and triangle's poly
+* Tetra tree
 
 ![teselaion](./img/02.png)
 
 TODO
 ----
 
-* Tetra tree
+* Data maping
+* Isolines
 * Square tree
 * Hexa tree
-* Data integration / point cloud
 * Holes in shapes
 
 Primitives
