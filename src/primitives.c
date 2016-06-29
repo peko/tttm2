@@ -129,9 +129,9 @@ triangles_intersects(
     if(point_is_inside_bc(b2, a1, b1, c1)) return true;
     if(point_is_inside_bc(c2, a1, b1, c1)) return true;
     
-    if(point_is_inside_bc(a2, a2, b2, c2)) return true;
-    if(point_is_inside_bc(b2, a2, b2, c2)) return true;
-    if(point_is_inside_bc(c2, a2, b2, c2)) return true;
+    if(point_is_inside_bc(a1, a2, b2, c2)) return true;
+    if(point_is_inside_bc(b1, a2, b2, c2)) return true;
+    if(point_is_inside_bc(c1, a2, b2, c2)) return true;
 
     return false;
 }
