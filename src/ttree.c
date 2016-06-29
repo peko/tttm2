@@ -263,7 +263,7 @@ triangle_write(
     fprintf(fp, "%f %f %d %d\n", a.x, a.y, d, d); 
     fprintf(fp, "%f %f %d %d\n", b.x, b.y, d, d); 
     fprintf(fp, "%f %f %d %d\n", c.x, c.y, d, d); 
-    fprintf(fp, "%f %f %d %d\n", a.x, a.y, d, d); 
+    // fprintf(fp, "%f %f %d %d\n", a.x, a.y, d, d); 
     fprintf(fp, "\n"); 
 } 
 
