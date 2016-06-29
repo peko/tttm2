@@ -18,40 +18,44 @@ static const struct
     {   0.f,  0.6f, 0.f, 0.f, 1.f }
 };
 
-static const char* vertex_shader_text =
-"uniform mat4 MVP;\n"
-"attribute vec3 vCol;\n"
-"attribute vec2 vPos;\n"
-"varying vec3 color;\n"
-"void main()\n"
-"{\n"
-"    gl_Position = MVP * vec4(vPos, 0.0, 1.0);\n"
-"    color = vCol;\n"
-"}\n";
+static void load_file(char* filename, char** buf) {
+    
+    long length;
+    FILE* fp = fopen (filename, "rb");
+    
+    if(fp) {
+      fseek (fp, 0, SEEK_END);
+      length = ftell (fp);
+      fseek (fp, 0, SEEK_SET);
+      *buf = malloc(length);
+      if (*buf) {
+        fread (*buf, 1, length, fp);
+      }
+      fclose (fp);
+    }
 
-static const char* fragment_shader_text =
-"varying vec3 color;\n"
-"void main()\n"
-"{\n"
-"    gl_FragColor = vec4(color, 1.0);\n"
-"}\n";
+}
 
-static void error_callback(int error, const char* description)
-{
+static void error_callback(int error, const char* description) {
     fprintf(stderr, "Error: %s\n", description);
 }
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
-int main(void)
-{
+int main(void) {
+
     GLFWwindow* window;
     GLuint vertex_buffer, vertex_shader, fragment_shader, program;
     GLint mvp_location, vpos_location, vcol_location;
+
+    char* vertex_shader_text;
+    char* fragment_shader_text;
+
+    load_file("shader.vert", &vertex_shader_text);
+    load_file("shader.frag", &fragment_shader_text);
 
     glfwSetErrorCallback(error_callback);
 
@@ -61,7 +65,7 @@ int main(void)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-    window = glfwCreateWindow(640, 480, "Simple example", NULL, NULL);
+    window = glfwCreateWindow(800, 600, "show mesh", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -81,11 +85,11 @@ int main(void)
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);
+    glShaderSource(vertex_shader, 1, (const char**)&vertex_shader_text, NULL);
     glCompileShader(vertex_shader);
 
     fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_shader, 1, &fragment_shader_text, NULL);
+    glShaderSource(fragment_shader, 1, (const char**)&fragment_shader_text, NULL);
     glCompileShader(fragment_shader);
 
     program = glCreateProgram();
@@ -100,12 +104,12 @@ int main(void)
     glEnableVertexAttribArray(vpos_location);
     glVertexAttribPointer(vpos_location, 2, GL_FLOAT, GL_FALSE,
                           sizeof(float) * 5, (void*) 0);
+
     glEnableVertexAttribArray(vcol_location);
     glVertexAttribPointer(vcol_location, 3, GL_FLOAT, GL_FALSE,
                           sizeof(float) * 5, (void*) (sizeof(float) * 2));
 
-    while (!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)) {
         float ratio;
         int width, height;
         mat4x4 m, p, mvp;
@@ -132,7 +136,10 @@ int main(void)
     glfwDestroyWindow(window);
 
     glfwTerminate();
+
+    free(vertex_shader_text);
+    free(fragment_shader_text);
+
     exit(EXIT_SUCCESS);
 }
 
-//! [code]

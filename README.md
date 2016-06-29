@@ -66,6 +66,7 @@ Examples
 Triangle Tree
 -------------
 
+![](./img/15.png)
 ![](./img/14.png)
 ![](./img/12.png)
 ![](./img/13.png)

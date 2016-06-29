@@ -135,7 +135,6 @@ ttree_split_by_mesh(
     a1 = tt->points.a[tn->triangle.a];
     b1 = tt->points.a[tn->triangle.b];
     c1 = tt->points.a[tn->triangle.c];
-    printf("%u: %zu %zu %zu\n", depth, tn->triangle.a, tn->triangle.b, tn->triangle.c);
 
     point_t ab, bc, ca;
     ab = point_mid(a1, b1);
@@ -169,12 +168,8 @@ ttree_split_by_mesh(
         }
     }
 
-    printf("Depth: %d\n", depth);
     for(uint8_t i=0; i<4; i++) {
-        
-        printf("Child %d intersects with %d tris\n", i, tr[i].n);
         if(tr[i].n>0){
-            printf("Create child: %d\n", i);
             tn->children[i] = tnode_new(triangle_new(&tt->points, cr[i][0], cr[i][1], cr[i][2]));
         } 
     }
@@ -182,7 +177,6 @@ ttree_split_by_mesh(
     if(depth>0) {
         for(uint8_t i=0; i<4; i++) {
             if(tn->children[i] != NULL) {
-                printf("And split %d\n", i);
                 ttree_split_by_mesh(tt, tn->children[i], points, &tr[i], depth-1);
             }
         }
