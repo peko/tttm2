@@ -1,6 +1,6 @@
 #include "main.h"
 
-
+#define BUFFERS 10
 #define max(a,b) ((a)>(b)?(a):(b))
 
 typedef struct {
@@ -9,34 +9,69 @@ typedef struct {
 } vertex_t;
 typedef kvec_t(vertex_t) vertices_v;
 
-static void 
-load_mesh(
-    char* filename, 
-    vertices_v* vertices);
+static void load_mesh(char* filename);
 
-GLuint vertex_buffer;
-vertices_v vertices;
+int current_buffer;
+GLuint vertex_buffers[BUFFERS];
+vertices_v vertices[BUFFERS];
+
+void setBuffer() {
+    // change buffer object
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[current_buffer]);        
+    setVertexAttr();
+    printf("Buffer %d\n", current_buffer);
+}
+
 // initpoint
 void init(int argc, char** argv) {
     // MESH //
     if(argc>1){
-        glGenBuffers(1, &vertex_buffer);
-        glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-        kv_init(vertices);
-        load_mesh(argv[1], &vertices);
-        printf("Loaded %zu points\n", vertices.n);
-        glBufferData(GL_ARRAY_BUFFER, vertices.n * sizeof(vertex_t), vertices.a, GL_STATIC_DRAW);
+        for(int i=0; i<BUFFERS; i++) {
+            kv_init(vertices[i]);
+        }
+        load_mesh(argv[1]);
+        for(int i=0; i<BUFFERS; i++) {
+            printf("Buffer Data %d, %p\n",i, vertices[i].a);
+        }
+        glGenBuffers(BUFFERS, vertex_buffers);
+
+
+        for(int i=0; i<BUFFERS; i++) {
+            if(vertices[i].n == 0) continue;
+
+            printf("Loaded %d: %zu points\n", i, vertices[i].n);
+            printf("Bind %d buffer id: %d\n", i, vertex_buffers[i]);
+            glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[i]);
+            
+            printf("Buffer Data %d, %p\n",i, vertices[i].a);
+            glBufferData(GL_ARRAY_BUFFER, 
+                vertices[i].n * sizeof(vertex_t), 
+                vertices[i].a, GL_STATIC_DRAW);
+            // printf("Unbind %d\n", i);
+            // glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        }
+
+        current_buffer = 5;
+        setBuffer();
     }
 }
 
+
+
 // draw loop
 void draw() {
-    glDrawArrays(GL_TRIANGLES, 0, vertices.n);
+    glDrawArrays(GL_TRIANGLES, 0, vertices[current_buffer].n);
 }
 
 // cleanup at the end
 void cleanup() {
-    kv_destroy(vertices);
+    // cleanup
+    fprintf(stderr, "Cleanup");
+    glDeleteBuffers(BUFFERS, vertex_buffers);
+    for(int i=0;i<10; i++) {
+        kv_destroy(vertices[i]);
+    }
 }
 
 void on_error(int error, const char* description) {
@@ -45,7 +80,7 @@ void on_error(int error, const char* description) {
 
 void on_key(GLFWwindow* window, int key, int scancode, int action, int mods) {
     
-    // fprintf(stderr, "%d = %d %d\n", key, GLFW_KEY_UP, action);
+    // fprintf(stderr, "key: %d scan: %d act: %d mods: %d\n", key, scancode, action, mods);
     // fprintf(stderr, "%d %d\n", posx, posy);
 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -54,6 +89,13 @@ void on_key(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || action == GLFW_REPEAT)) posx+=0.05;
     if (key == GLFW_KEY_UP    && (action == GLFW_PRESS || action == GLFW_REPEAT)) posy+=0.05;
     if (key == GLFW_KEY_DOWN  && (action == GLFW_PRESS || action == GLFW_REPEAT)) posy-=0.05;
+    if (key == GLFW_KEY_MINUS && (action == GLFW_PRESS || action == GLFW_REPEAT)) scale-=0.2;
+    if (key == GLFW_KEY_EQUAL && (action == GLFW_PRESS || action == GLFW_REPEAT)) scale+=0.2;
+
+    if (key >= GLFW_KEY_0 && key <= GLFW_KEY_9 && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        current_buffer = key - GLFW_KEY_0;
+        setBuffer();
+    }
 
 }
 
@@ -67,9 +109,7 @@ void on_scroll(GLFWwindow* window, double xoffset, double yoffset) {
 }
 
 static void 
-load_mesh(
-    char* filename, 
-    vertices_v* vertices) {
+load_mesh(char* filename) {
 
     FILE* fp;
     char* line = NULL;
@@ -89,12 +129,12 @@ load_mesh(
         double x = strtod(line, &e); 
         double y = strtod(   e, &e);
         int    d = strtol(   e, &e, 10);
-        if(d!=8) continue;
+        if(d<0 || d>9) continue;
 
         if(x>maxx) maxx=x; if(y>maxy) maxy=y;
         if(x<minx) minx=x; if(y<miny) miny=y;
-        vertex_t v = (vertex_t) { x, y, 1.0, 0.5, 0.5};
-        kv_push(vertex_t, *vertices, v);
+        vertex_t v = (vertex_t) { x, y };
+        kv_push(vertex_t, vertices[d], v);
     }
 
     w = maxx-minx;
@@ -110,13 +150,15 @@ load_mesh(
     // FIT model to 1x1 box
     double scale = 2.0/max(w,h);
     printf("scale %f\n", scale);
-    for(uint i=0; i<vertices->n; i++) {
-        vertices->a[i].x = (vertices->a[i].x - cx)*scale; 
-        vertices->a[i].y = (vertices->a[i].y - cy)*scale;
-        vertices->a[i].r = ((i    )%256)/255.0;
-        vertices->a[i].g = ((i+64 )%256)/255.0;
-        vertices->a[i].b = ((i+128)%256)/255.0;
-        // printf("%f %f %s",vertices->a[i].x, vertices->a[i].y, (i%8)?"":"\n");
+    for(uint i=0; i<BUFFERS; i+=1){
+        for(uint j=0; j<vertices[i].n; j++) {
+            vertices[i].a[j].x = (vertices[i].a[j].x - cx)*scale; 
+            vertices[i].a[j].y = (vertices[i].a[j].y - cy)*scale;
+            vertices[i].a[j].r = ((j    )%256)/255.0;
+            vertices[i].a[j].g = ((j+64 )%256)/255.0;
+            vertices[i].a[j].b = ((j+128)%256)/255.0;
+            // printf("%f %f %s",vertices->a[i].x, vertices->a[i].y, (i%8)?"":"\n");
+        }
     }
 
     fclose(fp);

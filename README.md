@@ -3,7 +3,7 @@ Tetra Tree Triangle Mesh
 
 Some experiments with geo data
 
-![](./img/15.png)
+![](./img/triangle-tree.gif)
 
 DONE
 ----
