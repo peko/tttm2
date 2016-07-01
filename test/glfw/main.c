@@ -94,31 +94,11 @@ load_mesh(
         free(line);
 }
 
-static void error_callback(int error, const char* description) {
-    fprintf(stderr, "Error: %s\n", description);
-}
-
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-}
-
-static double mousex, mousey;
-static void cursor_pos_callback(GLFWwindow* window, double xpos, double ypos){
-    mousex = xpos;
-    mousey = ypos;
-}
-static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
-    // if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
-    //     popup_menu();
-    // int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-    // if (state == GLFW_PRESS)
-    //     upgrade_cow();
-}
-
-static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-
-}
+extern void on_error(int error, const char* description);
+extern void on_key(GLFWwindow* window, int key, int scancode, int action, int mods);
+extern void on_mouse(GLFWwindow* window, double xpos, double ypos);
+extern void on_click(GLFWwindow* window, int button, int action, int mods);
+extern void on_scroll(GLFWwindow* window, double xoffset, double yoffset);
 
 int main(int argc, char** argv) {
 
@@ -132,7 +112,7 @@ int main(int argc, char** argv) {
     load_file("shader.vert", &vertex_shader_text);
     load_file("shader.frag", &fragment_shader_text);
 
-    glfwSetErrorCallback(error_callback);
+    glfwSetErrorCallback(on_error);
 
     if (!glfwInit())
         exit(EXIT_FAILURE);
@@ -146,10 +126,10 @@ int main(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
 
-    glfwSetKeyCallback(window, key_callback);
-    glfwSetCursorPosCallback(window, cursor_pos_callback);
-    glfwSetMouseButtonCallback(window, mouse_button_callback);
-    glfwSetScrollCallback(window, scroll_callback);
+    glfwSetKeyCallback(window, on_key);
+    glfwSetCursorPosCallback(window, on_mouse);
+    glfwSetMouseButtonCallback(window, on_click);
+    glfwSetScrollCallback(window, on_scroll);
 
     glfwMakeContextCurrent(window);
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);

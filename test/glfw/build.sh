@@ -1,6 +1,6 @@
 #!/bin/bash
-src="show-mesh"
-dep="glad.c"
+src="app"
+dep="glad.c main.c"
 clang \
 `pkg-config --cflags glfw3 glu` \
 -o $src $src.c $dep \
