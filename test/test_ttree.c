@@ -31,7 +31,7 @@ main(int argc, char** argv) {
     mesh_write(mesh, fp);
     fclose(fp);
     
-    ttree_t* tree = ttree_from_mesh(&mesh->points, &mesh->triangles, 6);
+    ttree_t* tree = ttree_from_mesh(&mesh->points, &mesh->triangles, 7);
     if(tree != NULL) {
         fprintf(stderr, "Write ttree-ttree.txt\n");
         fp = fopen("ttree-ttree.txt", "w");
