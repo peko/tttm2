@@ -15,15 +15,10 @@ int current_buffer;
 GLuint vertex_buffers[BUFFERS];
 vertices_v vertices[BUFFERS];
 
-void setBuffer() {
-    // change buffer object
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[current_buffer]);        
-    setVertexAttr();
-    printf("Buffer %d\n", current_buffer);
-}
+void setBuffer();
 
 // initpoint
-void init(int argc, char** argv) {
+void app_init(int argc, char** argv) {
     // MESH //
     if(argc>1){
         for(int i=0; i<BUFFERS; i++) {
@@ -60,12 +55,12 @@ void init(int argc, char** argv) {
 
 
 // draw loop
-void draw() {
+void app_draw() {
     glDrawArrays(GL_TRIANGLES, 0, vertices[current_buffer].n);
 }
 
 // cleanup at the end
-void cleanup() {
+void app_cleanup() {
     // cleanup
     fprintf(stderr, "Cleanup");
     glDeleteBuffers(BUFFERS, vertex_buffers);
@@ -106,6 +101,14 @@ void on_click(GLFWwindow* window, int button, int action, int mods) {
 }
 
 void on_scroll(GLFWwindow* window, double xoffset, double yoffset) {
+    // printf("%f, %f\n", xoffset, yoffset);
+    scale+=0.2*yoffset;
+}
+
+void setBuffer() {
+    // change buffer object
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[current_buffer]);        
+    setVertexAttr();
 }
 
 static void 

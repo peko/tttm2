@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
     vpos_location = glGetAttribLocation(program, "vPos");
     vcol_location = glGetAttribLocation(program, "vCol");
 
-    init(argc, argv);
+    app_init(argc, argv);
     
     while (!glfwWindowShouldClose(window)) {
         float ratio;
@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
         glUseProgram(program);
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
 
-        draw();
+        app_draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
 
     glfwTerminate();
 
-    cleanup();
+    app_cleanup();
 
     free(vertex_shader_text);
     free(fragment_shader_text);
@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
     exit(EXIT_SUCCESS);
 }
 
-void setVertexAttr(){
+void setVertexAttr() {
     glEnableVertexAttribArray(vpos_location);
     glVertexAttribPointer(vpos_location, 2, GL_FLOAT, GL_FALSE,
                           sizeof(float) * 5, (void*) 0);
