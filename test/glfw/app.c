@@ -10,15 +10,58 @@ typedef struct {
 typedef kvec_t(vertex_t) vertices_v;
 
 static void load_mesh(char* filename);
+static void load_shader(char* filename, char** buf);
 
 int current_buffer;
 GLuint vertex_buffers[BUFFERS];
 vertices_v vertices[BUFFERS];
 
-void setBuffer();
+GLuint vertex_shader, fragment_shader, program;
+
+char* vertex_shader_text;
+char* fragment_shader_text;
+
+GLint mvp_location, vpos_location, vcol_location;
+mat4x4 m, p, mvp;
+
+GLfloat posx, posy, scale;
+
+void set_buffer();
+
+static void 
+setup_shaders(){
+
+    load_shader("shader.vert", &vertex_shader_text);
+    load_shader("shader.frag", &fragment_shader_text);
+    // SHADERS //
+    vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_shader, 1, (const char**)&vertex_shader_text, NULL);
+    glCompileShader(vertex_shader);
+
+    fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_shader, 1, (const char**)&fragment_shader_text, NULL);
+    glCompileShader(fragment_shader);
+
+    program = glCreateProgram();
+    glAttachShader(program, vertex_shader);
+    glAttachShader(program, fragment_shader);
+    glLinkProgram(program);
+
+    mvp_location  = glGetUniformLocation(program, "MVP");
+    vpos_location = glGetAttribLocation(program, "vPos");
+    vcol_location = glGetAttribLocation(program, "vCol");
+}
 
 // initpoint
-void app_init(int argc, char** argv) {
+void 
+app_init(int argc, char** argv) {
+
+    posx = 0.0;
+    posy = 0.0;
+    scale = 1.0;
+
+    setup_shaders();
+
     // MESH //
     if(argc>1){
         for(int i=0; i<BUFFERS; i++) {
@@ -46,27 +89,66 @@ void app_init(int argc, char** argv) {
             // glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         }
-
         current_buffer = 5;
-        setBuffer();
     }
 }
 
 
 
+void 
+setup_view(float ratio) {
+
+    mat4x4_identity(m);
+    mat4x4_translate_in_place(m, posx, posy, 0.0);
+    mat4x4_scale_aniso(m, m, scale,scale,scale);
+
+    mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
+    mat4x4_mul(mvp, p, m);
+
+    // set shader program
+    glUseProgram(program);
+    glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
+}
+
+void 
+set_attributes() {
+    glEnableVertexAttribArray(vpos_location);
+    glVertexAttribPointer(vpos_location, 2, GL_FLOAT, GL_FALSE,
+                          sizeof(float) * 5, (void*) 0);
+
+    glEnableVertexAttribArray(vcol_location);
+    glVertexAttribPointer(vcol_location, 3, GL_FLOAT, GL_FALSE,
+                  sizeof(float) * 5, (void*) (sizeof(float) * 2));
+}
+
+void 
+set_buffer() {
+    // change buffer object
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[current_buffer]);        
+    set_attributes();
+}
+
 // draw loop
-void app_draw() {
+void 
+app_draw(float ratio) {
+    set_buffer();
+    setup_view(ratio);
     glDrawArrays(GL_TRIANGLES, 0, vertices[current_buffer].n);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 // cleanup at the end
-void app_cleanup() {
+void 
+app_cleanup() {
     // cleanup
     fprintf(stderr, "Cleanup");
     glDeleteBuffers(BUFFERS, vertex_buffers);
     for(int i=0;i<10; i++) {
         kv_destroy(vertices[i]);
     }
+
+    free(vertex_shader_text);
+    free(fragment_shader_text);
 }
 
 void on_error(int error, const char* description) {
@@ -89,9 +171,7 @@ void on_key(GLFWwindow* window, int key, int scancode, int action, int mods) {
 
     if (key >= GLFW_KEY_0 && key <= GLFW_KEY_9 && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
         current_buffer = key - GLFW_KEY_0;
-        setBuffer();
     }
-
 }
 
 void on_mouse(GLFWwindow* window, double xpos, double ypos){
@@ -103,12 +183,6 @@ void on_click(GLFWwindow* window, int button, int action, int mods) {
 void on_scroll(GLFWwindow* window, double xoffset, double yoffset) {
     // printf("%f, %f\n", xoffset, yoffset);
     scale+=0.2*yoffset;
-}
-
-void setBuffer() {
-    // change buffer object
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[current_buffer]);        
-    setVertexAttr();
 }
 
 static void 
@@ -167,4 +241,24 @@ load_mesh(char* filename) {
     fclose(fp);
     if (line)
         free(line);
+}
+
+static void 
+load_shader(
+    char*  filename, 
+    char** buf) {
+
+    long length;
+    FILE* fp = fopen (filename, "rb");
+    
+    if(fp) {
+      fseek (fp, 0, SEEK_END);
+      length = ftell (fp);
+      fseek (fp, 0, SEEK_SET);
+      *buf = malloc(length);
+      if (*buf) {
+        fread (*buf, 1, length, fp);
+      }
+      fclose (fp);
+    }
 }
