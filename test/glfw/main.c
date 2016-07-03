@@ -28,7 +28,8 @@ int main(int argc, char** argv) {
     glfwSwapInterval(1);
 
     app_init(argc, argv);
-    
+    gui_init(window);
+
     while (!glfwWindowShouldClose(window)) {
         float ratio;
         int width, height;
@@ -40,9 +41,13 @@ int main(int argc, char** argv) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         app_draw(ratio);
+        
+        glfwPollEvents();
+        gui_logic();
+        gui_draw();
+
 
         glfwSwapBuffers(window);
-        glfwPollEvents();
     }
 
     glfwDestroyWindow(window);
@@ -50,6 +55,7 @@ int main(int argc, char** argv) {
     glfwTerminate();
 
     app_cleanup();
+    gui_cleanup();
 
     exit(EXIT_SUCCESS);
 }

@@ -1,6 +1,5 @@
 #include "main.h"
 
-#define BUFFERS 10
 #define max(a,b) ((a)>(b)?(a):(b))
 
 typedef struct {
@@ -12,7 +11,6 @@ typedef kvec_t(vertex_t) vertices_v;
 static void load_mesh(char* filename);
 static void load_shader(char* filename, char** buf);
 
-int current_buffer;
 GLuint vertex_buffers[BUFFERS];
 vertices_v vertices[BUFFERS];
 
@@ -23,8 +21,6 @@ char* fragment_shader_text;
 
 GLint mvp_location, vpos_location, vcol_location;
 mat4x4 m, p, mvp;
-
-GLfloat posx, posy, scale;
 
 void set_buffer();
 
@@ -85,8 +81,8 @@ app_init(int argc, char** argv) {
             glBufferData(GL_ARRAY_BUFFER, 
                 vertices[i].n * sizeof(vertex_t), 
                 vertices[i].a, GL_STATIC_DRAW);
-            // printf("Unbind %d\n", i);
-            // glBindBuffer(GL_ARRAY_BUFFER, 0);
+            printf("Unbind %d\n", i);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         }
         current_buffer = 5;
@@ -135,6 +131,7 @@ app_draw(float ratio) {
     setup_view(ratio);
     glDrawArrays(GL_TRIANGLES, 0, vertices[current_buffer].n);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glUseProgram(0);
 }
 
 // cleanup at the end

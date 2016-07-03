@@ -8,6 +8,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define BUFFERS 10
+int current_buffer;
+
+GLfloat posx, posy, scale;
+
+
 void app_init(int argc, char** argv);
 void app_draw(float ratio);
 void app_cleanup();
