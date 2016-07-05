@@ -89,8 +89,6 @@ app_init(int argc, char** argv) {
     }
 }
 
-
-
 void 
 setup_view(float ratio) {
 
@@ -116,6 +114,11 @@ set_attributes() {
     glVertexAttribPointer(vcol_location, 3, GL_FLOAT, GL_FALSE,
                   sizeof(float) * 5, (void*) (sizeof(float) * 2));
 }
+void 
+unset_attributes() {
+    glDisableVertexAttribArray(vpos_location);
+    glDisableVertexAttribArray(vcol_location);
+}
 
 void 
 set_buffer() {
@@ -127,11 +130,16 @@ set_buffer() {
 // draw loop
 void 
 app_draw(float ratio) {
+
     set_buffer();
     setup_view(ratio);
+
     glDrawArrays(GL_TRIANGLES, 0, vertices[current_buffer].n);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+
     glUseProgram(0);
+    unset_attributes();
+
 }
 
 // cleanup at the end

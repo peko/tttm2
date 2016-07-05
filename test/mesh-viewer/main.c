@@ -40,12 +40,12 @@ int main(int argc, char** argv) {
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        app_draw(ratio);
-        
         glfwPollEvents();
+
+        app_draw(ratio);
+
         gui_logic();
         gui_draw();
-
 
         glfwSwapBuffers(window);
     }
