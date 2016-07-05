@@ -89,23 +89,14 @@ app_init(int argc, char** argv) {
     }
 }
 
+// draw loop
 void 
-setup_view(float ratio) {
+app_draw(float ratio) {
 
-    mat4x4_identity(m);
-    mat4x4_translate_in_place(m, posx, posy, 0.0);
-    mat4x4_scale_aniso(m, m, scale,scale,scale);
+    // SET BUFFER
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[current_buffer]);        
 
-    mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
-    mat4x4_mul(mvp, p, m);
-
-    // set shader program
-    glUseProgram(program);
-    glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
-}
-
-void 
-set_attributes() {
+    // SET ATTRIBUTES
     glEnableVertexAttribArray(vpos_location);
     glVertexAttribPointer(vpos_location, 2, GL_FLOAT, GL_FALSE,
                           sizeof(float) * 5, (void*) 0);
@@ -113,32 +104,32 @@ set_attributes() {
     glEnableVertexAttribArray(vcol_location);
     glVertexAttribPointer(vcol_location, 3, GL_FLOAT, GL_FALSE,
                   sizeof(float) * 5, (void*) (sizeof(float) * 2));
-}
-void 
-unset_attributes() {
+
+    // SET VIEW
+    mat4x4_identity(m);
+    mat4x4_translate_in_place(m, posx, posy, 0.0);
+    mat4x4_scale_aniso(m, m, scale,scale,scale);
+
+    mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
+    mat4x4_mul(mvp, p, m);
+
+    // SET SHADER
+    glUseProgram(program);
+    // send view matrix
+    glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
+
+    // DRAW
+    glDrawArrays(GL_TRIANGLES, 0, vertices[current_buffer].n);
+
+    // UNSET SHADER
+    glUseProgram(0);
+
+    // UNSET ATTRIBUTES
     glDisableVertexAttribArray(vpos_location);
     glDisableVertexAttribArray(vcol_location);
-}
 
-void 
-set_buffer() {
-    // change buffer object
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[current_buffer]);        
-    set_attributes();
-}
-
-// draw loop
-void 
-app_draw(float ratio) {
-
-    set_buffer();
-    setup_view(ratio);
-
-    glDrawArrays(GL_TRIANGLES, 0, vertices[current_buffer].n);
+    // UNSET BUFFER
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glUseProgram(0);
-    unset_attributes();
 
 }
 
