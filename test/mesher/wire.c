@@ -17,43 +17,31 @@ static char* fragment_shader_text;
 static GLint mvp_location, vpos_location, vcol_location;
 static mat4x4 m, p, mvp;
 
+static GLint vertex_buffer = 0;
+
 static void setup_shaders();
 static void load_shader(char* filename, char** buf);
 
+
+
 void 
-wire_init(int argc, char** argv) {
+wire_init() {
 
     setup_shaders();
 
-    // MESH //
-    if(argc>1){
-        for(int i=0; i<BUFFERS; i++) {
-            kv_init(vertices[i]);
-        }
-        load_mesh(argv[1]);
-        for(int i=0; i<BUFFERS; i++) {
-            printf("Buffer Data %d, %p\n",i, vertices[i].a);
-        }
-        glGenBuffers(BUFFERS, vertex_buffers);
+}
 
+void
+wire_set_buffer(shapes_v* shapes) {
+    
+    if(vertex_buffer>0) glDeleteBuffers(1, &vertex_buffer);
 
-        for(int i=0; i<BUFFERS; i++) {
-            if(vertices[i].n == 0) continue;
-
-            printf("Loaded %d: %zu points\n", i, vertices[i].n);
-            printf("Bind %d buffer id: %d\n", i, vertex_buffers[i]);
-            glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[i]);
-            
-            printf("Buffer Data %d, %p\n",i, vertices[i].a);
-            glBufferData(GL_ARRAY_BUFFER, 
-                vertices[i].n * sizeof(vertex_t), 
-                vertices[i].a, GL_STATIC_DRAW);
-            printf("Unbind %d\n", i);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        }
-        current_buffer = 5;
-    }
+    glGenBuffers(1, &vertex_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);    
+    glBufferData(GL_ARRAY_BUFFER, 
+        vertices[i].n * sizeof(vertex_t), 
+        vertices[i].a, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 // draw loop
@@ -61,7 +49,7 @@ void
 wire_draw(shapes_v* shapes, float ratio, float x, float y, float scale) {
 
     // SET BUFFER
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[current_buffer]);        
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);        
 
     // SET ATTRIBUTES
     glEnableVertexAttribArray(vpos_location);
@@ -106,11 +94,7 @@ wire_draw(shapes_v* shapes, float ratio, float x, float y, float scale) {
 void 
 wire_cleanup() {
     // cleanup
-    fprintf(stderr, "Cleanup");
-    glDeleteBuffers(BUFFERS, vertex_buffers);
-    for(int i=0;i<10; i++) {
-        kv_destroy(vertices[i]);
-    }
+    if(vertex_buffer>0) glDeleteBuffers(1, &vertex_buffer);
 
     free(vertex_shader_text);
     free(fragment_shader_text);

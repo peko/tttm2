@@ -50,7 +50,7 @@ main(int argc, char** argv) {
 
     strings_v   names     = dbf_get_column("../../data/earth_110m.dbf", "name_long");
     countries_v countries = load_countries("../../data/earth_110m.shp"             );
-
+    
     gui_init(window, &names);
 
     while (!glfwWindowShouldClose(window)) {
