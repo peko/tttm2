@@ -246,7 +246,7 @@ shapes_load(const char* name){
 
     strcpy(buf,name);
     strcat(buf,".dbf");
-    shapes_load_dbf(buf);
+    shapes_load_dbf(buf, "name_long");
 
     strcpy(buf, name);
     strcat(buf, ".shp");
@@ -257,17 +257,9 @@ shapes_load(const char* name){
 
 // extract info from dbf
 void
-shapes_load_dbf(const char* filename){
+shapes_load_dbf(const char* filename, const char* column){
 
-    DBFHandle   hDBF;
-    int  *panWidth, i, iRecord;
-    char szFormat[32], szField[1024];
-    char ftype[15], cTitle[32], nTitle[32];
-    int  nWidth, nDecimals;
-    int  cnWidth, cnDecimals;
-    DBFHandle   cDBF;
-    DBFFieldType    hType,cType;
-    int     ci, ciRecord;
+    DBFHandle hDBF;
 
     hDBF = DBFOpen( filename, "rb" );
     if( hDBF == NULL ) {
@@ -275,22 +267,23 @@ shapes_load_dbf(const char* filename){
         return;
     }
 
-    fprintf (stderr, "Info for %s\n", filename);
-
-    i = DBFGetFieldCount(hDBF);
-    fprintf (stderr, "%d Columns,  %d Records in file\n",i,DBFGetRecordCount(hDBF));
-
-    panWidth = (int *) malloc( DBFGetFieldCount( hDBF ) * sizeof(int) );
-    for( int i = 0; i < DBFGetFieldCount(hDBF); i++ ) {
-        DBFFieldType    eType;
-        char szTitle[256];
-        eType = DBFGetFieldInfo( hDBF, i, szTitle, &nWidth, &nDecimals );
-        fprintf(stderr, "%4d: %10s %c", i, szTitle, i%4 ? '|':'\n');
-    }
-    fprintf(stderr, "\n");
+    // INFO ABOUT DBF
+    // int  *panWidth;
+    // int  nWidth, nDecimals;
+    // fprintf (stderr, "Info for %s\n", filename);
+    // i = DBFGetFieldCount(hDBF);
+    // fprintf (stderr, "%d Columns,  %d Records in file\n",i,DBFGetRecordCount(hDBF));
+    // panWidth = (int *) malloc( DBFGetFieldCount( hDBF ) * sizeof(int) );
+    // for( int i = 0; i < DBFGetFieldCount(hDBF); i++ ) {
+    //     DBFFieldType    eType;
+    //     char szTitle[256];
+    //     eType = DBFGetFieldInfo( hDBF, i, szTitle, &nWidth, &nDecimals );
+    //     fprintf(stderr, "%4d: %10s %c", i, szTitle, i%4 ? '|':'\n');
+    // }
+    // fprintf(stderr, "\n");
 
     // print names
-    uint32_t fid = DBFGetFieldIndex(hDBF, "name_long");
+    uint32_t fid = DBFGetFieldIndex(hDBF, column);
     for(uint32_t i = 0; i < DBFGetRecordCount(hDBF); i++ ) {
        char* name_long = (char *) DBFReadStringAttribute(hDBF, i, fid);
        fprintf(stderr, "%d: %s\n", i, name_long);
@@ -298,6 +291,7 @@ shapes_load_dbf(const char* filename){
 
     DBFClose( hDBF );
 }
+
 
 // LOAD SHP
 
