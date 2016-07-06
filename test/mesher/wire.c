@@ -1,6 +1,10 @@
-#include "wire.h"
+#include <stdio.h>
 
-#define max(a,b) ((a)>(b)?(a):(b))
+#include "glad/glad.h"
+#include <GLFW/glfw3.h>
+#include "linmath.h"
+
+#include "wire.h"
 
 typedef struct {
     float x, y;
@@ -8,27 +12,19 @@ typedef struct {
 } vertex_t;
 typedef kvec_t(vertex_t) vertices_v;
 
-
 static GLuint vertex_shader, fragment_shader, program;
-
+static GLuint vertex_buffer = 0;
 static char* vertex_shader_text;
 static char* fragment_shader_text;
 
 static GLint mvp_location, vpos_location, vcol_location;
-static mat4x4 m, p, mvp;
-
-static GLint vertex_buffer = 0;
 
 static void setup_shaders();
 static void load_shader(char* filename, char** buf);
 
-
-
 void 
 wire_init() {
-
     setup_shaders();
-
 }
 
 void
@@ -36,17 +32,36 @@ wire_set_buffer(shapes_v* shapes) {
     
     if(vertex_buffer>0) glDeleteBuffers(1, &vertex_buffer);
 
+    // sum shpaes points
+    uint32_t vertex_count=0;
+    for(uint32_t s=0; s<shapes->n; s++) {
+        vertex_count += shapes->a[s].n;
+    }
+
+    // fill buffer
+    vertex_t vertices[vertex_count];
+    uint32_t i=0;
+    for(uint32_t s=0; s<shapes->n; s++) {
+        for(uint32_t p=0; p<shapes->a[s].n; p++) {
+            point_t* pnt = &shapes->a[s].a[p];
+            vertices[i++] = (vertex_t) {pnt->x, pnt->y, 1.0, 1.0, 1.0};
+        }
+    }
+
+    // send buffer to vram
     glGenBuffers(1, &vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);    
     glBufferData(GL_ARRAY_BUFFER, 
-        vertices[i].n * sizeof(vertex_t), 
-        vertices[i].a, GL_STATIC_DRAW);
+        vertex_count * sizeof(vertex_t), 
+        vertices, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 // draw loop
 void 
-wire_draw(shapes_v* shapes, float ratio, float x, float y, float scale) {
+wire_draw(float ratio, float x, float y, float scale) {
+
+    mat4x4 m, p, mvp;
 
     // SET BUFFER
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);        
@@ -62,7 +77,7 @@ wire_draw(shapes_v* shapes, float ratio, float x, float y, float scale) {
 
     // SET VIEW
     mat4x4_identity(m);
-    mat4x4_translate_in_place(m, posx, posy, 0.0);
+    mat4x4_translate_in_place(m, x, y, 0.0);
     mat4x4_scale_aniso(m, m, scale, scale, scale);
 
     mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
@@ -75,7 +90,7 @@ wire_draw(shapes_v* shapes, float ratio, float x, float y, float scale) {
 
 
     // DRAW
-    glDrawArrays(GL_LINE_LOOP, 0, vertices[current_buffer].n);
+    // glDrawArrays(GL_LINE_LOOP, 0, vertex_count);
 
 
     // UNSET SHADER

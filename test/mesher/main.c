@@ -10,15 +10,19 @@
 
 #include "types.h"
 #include "gui.h"
+#include "wire.h"
 
 static void on_error (int error, const char* description);
 static void on_key   (GLFWwindow* window, int key, int scancode, int action, int mods);
 static void on_mouse (GLFWwindow* window, double xpos, double ypos);
 static void on_click (GLFWwindow* window, int button, int action, int mods);
 static void on_scroll(GLFWwindow* window, double xoffset, double yoffset);
+static void on_country(int cid);
 
 static strings_v   dbf_get_column(const char* filename, const char* col);
 static countries_v load_countries(const char *filename);
+
+static countries_v countries;
 
 int 
 main(int argc, char** argv) {
@@ -48,10 +52,10 @@ main(int argc, char** argv) {
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     glfwSwapInterval(1);
 
-    strings_v   names     = dbf_get_column("../../data/earth_110m.dbf", "name_long");
-    countries_v countries = load_countries("../../data/earth_110m.shp"             );
+    strings_v names = dbf_get_column("../../data/earth_110m.dbf", "name_long");
+    countries = load_countries("../../data/earth_110m.shp");
     
-    gui_init(window, &names);
+    gui_init(window, &names, on_country);
 
     while (!glfwWindowShouldClose(window)) {
 
@@ -132,6 +136,11 @@ dbf_get_column(const char* filename, const char* colname) {
     return col;
 }
 
+static void on_country(int cid) {
+    // for(uint32_t i=0; i<countries.n; i++) fprintf(stderr, "%d\n", i);
+    wire_set_buffer(&countries.a[cid]);
+}
+
 static countries_v
 load_countries(const char* filename) {
 
@@ -149,17 +158,17 @@ load_countries(const char* filename) {
     int country_count, shapes_vype;
     SHPGetInfo( hSHP, &country_count, &shapes_vype, adfMinBound, adfMaxBound );
     
+    fprintf(stderr, "Load %d countries\n", country_count);
     // Iterate through countries
     for(int i = 0; i < country_count; i++ ) {
-        
+                        
         SHPObject *shp = SHPReadObject(hSHP, i);
-
         if(shp == NULL) goto end_loading;
 
         if(shp->nParts == 0) continue;
 
         // first part starts at point 0
-        if(shp->panPartStart[0] == 0) goto end_loading;
+        if(shp->panPartStart[0] != 0) goto end_loading;
 
         // collect parts of country
         shapes_v shapes;

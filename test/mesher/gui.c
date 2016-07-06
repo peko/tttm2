@@ -39,12 +39,16 @@ struct nk_color background;
 
 static strings_v country_names;
 
+static void (*on_country)(int) = NULL;
+
 void 
 gui_init(
     GLFWwindow* win, 
-    strings_v*  names) {
+    strings_v*  names,
+    void (*callback)(int)) {
 
     country_names = *names;
+    on_country = callback;
 
     /* GUI */
     ctx = nk_glfw3_init(win, NK_GLFW3_INSTALL_CALLBACKS);
@@ -75,8 +79,10 @@ gui_logic() {
         if (nk_group_begin(ctx, &tab, "Group_Without_Border", 0)) {
             nk_layout_row_dynamic(ctx, 16, 1);
             for (int i = 0; i <country_names.n; ++i) {
-                if (nk_button_label(ctx, country_names.a[i], NK_BUTTON_DEFAULT))
+                if (nk_button_label(ctx, country_names.a[i], NK_BUTTON_DEFAULT)) {
                     fprintf(stdout, "%d: %s\n", selected_country = i, country_names.a[i]);
+                    if(on_country != NULL) on_country(i);
+                }
             }
             nk_group_end(ctx);
         }
