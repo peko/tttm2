@@ -55,6 +55,7 @@ main(int argc, char** argv) {
     strings_v names = dbf_get_column("../../data/earth_110m.dbf", "name_long");
     countries = load_countries("../../data/earth_110m.shp");
     
+    wire_init();
     gui_init(window, &names, on_country);
 
     while (!glfwWindowShouldClose(window)) {
@@ -68,6 +69,8 @@ main(int argc, char** argv) {
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        wire_draw(ratio, 0.0, 0.0, 0.01);
+
         glfwPollEvents();
 
         gui_logic();
@@ -79,9 +82,12 @@ main(int argc, char** argv) {
     countries_destroy(&countries);
     strings_destroy(&names);
 
+    gui_cleanup();
+    wire_cleanup();
+    
     glfwDestroyWindow(window);
     glfwTerminate();
-    gui_cleanup();
+    
 
     exit(EXIT_SUCCESS);
 }

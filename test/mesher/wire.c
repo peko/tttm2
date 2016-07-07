@@ -14,6 +14,10 @@ typedef kvec_t(vertex_t) vertices_v;
 
 static GLuint vertex_shader, fragment_shader, program;
 static GLuint vertex_buffer = 0;
+static GLuint vertex_count  = 0;
+static GLuint shapes_count  = 0;
+static GLuint shape_lenghts[256] = {0};
+
 static char* vertex_shader_text;
 static char* fragment_shader_text;
 
@@ -21,6 +25,7 @@ static GLint mvp_location, vpos_location, vcol_location;
 
 static void setup_shaders();
 static void load_shader(char* filename, char** buf);
+
 
 void 
 wire_init() {
@@ -33,9 +38,11 @@ wire_set_buffer(shapes_v* shapes) {
     if(vertex_buffer>0) glDeleteBuffers(1, &vertex_buffer);
 
     // sum shpaes points
-    uint32_t vertex_count=0;
+    vertex_count = 0;
+    shapes_count = shapes->n;
     for(uint32_t s=0; s<shapes->n; s++) {
         vertex_count += shapes->a[s].n;
+        shape_lenghts[s] = shapes->a[s].n;
     }
 
     // fill buffer
@@ -88,10 +95,13 @@ wire_draw(float ratio, float x, float y, float scale) {
     // send view matrix
     glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
 
-
     // DRAW
+    uint32_t start = 0;
+    for(uint32_t i=0; i<shapes_count; i++) {
+        glDrawArrays(GL_LINE_LOOP, start, shape_lenghts[i]);
+        start+=shape_lenghts[i];
+    }
     // glDrawArrays(GL_LINE_LOOP, 0, vertex_count);
-
 
     // UNSET SHADER
     glUseProgram(0);
