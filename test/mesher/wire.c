@@ -6,18 +6,7 @@
 
 #include "wire.h"
 
-typedef struct {
-    float x, y;
-    float r, g, b;
-} vertex_t;
-typedef kvec_t(vertex_t) vertices_v;
-
 static GLuint vertex_shader, fragment_shader, program;
-static GLuint vertex_buffer = 0;
-static GLuint vertex_count  = 0;
-static GLuint shapes_count  = 0;
-static GLuint shape_lenghts[256] = {0};
-
 static char* vertex_shader_text;
 static char* fragment_shader_text;
 
@@ -26,52 +15,19 @@ static GLint mvp_location, vpos_location, vcol_location;
 static void setup_shaders();
 static void load_shader(char* filename, char** buf);
 
-
 void 
 wire_init() {
     setup_shaders();
 }
 
-void
-wire_set_buffer(shapes_v* shapes) {
-    
-    if(vertex_buffer>0) glDeleteBuffers(1, &vertex_buffer);
-
-    // sum shpaes points
-    vertex_count = 0;
-    shapes_count = shapes->n;
-    for(uint32_t s=0; s<shapes->n; s++) {
-        vertex_count += shapes->a[s].n;
-        shape_lenghts[s] = shapes->a[s].n;
-    }
-
-    // fill buffer
-    vertex_t vertices[vertex_count];
-    uint32_t i=0;
-    for(uint32_t s=0; s<shapes->n; s++) {
-        for(uint32_t p=0; p<shapes->a[s].n; p++) {
-            point_t* pnt = &shapes->a[s].a[p];
-            vertices[i++] = (vertex_t) {pnt->x, pnt->y, 1.0, 1.0, 1.0};
-        }
-    }
-
-    // send buffer to vram
-    glGenBuffers(1, &vertex_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);    
-    glBufferData(GL_ARRAY_BUFFER, 
-        vertex_count * sizeof(vertex_t), 
-        vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
 // draw loop
 void 
-wire_draw(float ratio, float x, float y, float scale) {
+wire_draw(vbo_t* vbo, float ratio, float x, float y, float scale) {
 
     mat4x4 m, p, mvp;
 
     // SET BUFFER
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);        
+    glBindBuffer(GL_ARRAY_BUFFER, vbo->id);        
 
     // SET ATTRIBUTES
     glEnableVertexAttribArray(vpos_location);
@@ -97,9 +53,10 @@ wire_draw(float ratio, float x, float y, float scale) {
 
     // DRAW
     uint32_t start = 0;
-    for(uint32_t i=0; i<shapes_count; i++) {
-        glDrawArrays(GL_LINE_LOOP, start, shape_lenghts[i]);
-        start+=shape_lenghts[i];
+    for(uint32_t i=0; i<vbo->shapes; i++) {
+        GLuint l = vbo->parts[i];
+        glDrawArrays(GL_LINE_LOOP, start, l);
+        start+= l;
     }
     // glDrawArrays(GL_LINE_LOOP, 0, vertex_count);
 
@@ -112,15 +69,11 @@ wire_draw(float ratio, float x, float y, float scale) {
 
     // UNSET BUFFER
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 }
 
 // cleanup at the end
 void 
 wire_cleanup() {
-    // cleanup
-    if(vertex_buffer>0) glDeleteBuffers(1, &vertex_buffer);
-
     free(vertex_shader_text);
     free(fragment_shader_text);
 }

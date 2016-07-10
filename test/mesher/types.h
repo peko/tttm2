@@ -15,7 +15,10 @@ typedef kvec_t(point_t) shape_v;
 void shape_destroy(shape_v* s);
 
 // multiple countours (country with islands)
-typedef kvec_t(shape_v) shapes_v;
+typedef struct {
+    kvec_t(shape_v);
+    point_t min, max, center;
+} shapes_v;
 void shapes_destroy(shapes_v* s);
 
 // multiple multiple contours (countries)
