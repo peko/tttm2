@@ -71,7 +71,7 @@ gui_logic(int width, int height) {
     char title[256];
     sprintf(title, "%d x %d", width, height);
 
-    if (nk_begin(ctx, &layout, title, nk_rect(10, 10, 300, height-20),
+    if (nk_begin(ctx, &layout, title, nk_rect(10, 10, 300, 600),
         NK_WINDOW_BORDER      | 
         NK_WINDOW_MOVABLE     | 
         NK_WINDOW_SCALABLE    |
@@ -81,9 +81,9 @@ gui_logic(int width, int height) {
         
         struct nk_panel tab;
 
-        nk_layout_row_dynamic(ctx, height-130, 1);
+        nk_layout_row_dynamic(ctx, 400, 1);
         if (nk_group_begin(ctx, &tab, "Group_Without_Border", 0)) {
-            nk_layout_row_dynamic(ctx, 16, 1);
+            nk_layout_row_dynamic(ctx, 16, 2);
             for (int i = 0; i <country_names.n; ++i) {
                 if (nk_button_label(ctx, country_names.a[i], NK_BUTTON_DEFAULT)) {
                     fprintf(stdout, "%d: %s\n", selected_country = i, country_names.a[i]);

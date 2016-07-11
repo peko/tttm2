@@ -40,12 +40,9 @@ shape_load_countries(const char* filename) {
         kv_init(shapes);
         shapes.min = (point_t){shp->dfXMin, shp->dfYMin};
         shapes.max = (point_t){shp->dfXMax, shp->dfYMax};
-        shapes.center = (point_t){
-            (shp->dfXMin + shp->dfXMax)/2.0, 
-            (shp->dfYMin + shp->dfYMax)/2.0
-        }; 
 
         uint32_t parts = shp->nParts;
+        double k = 0.0;
         for (uint32_t j=0; j<parts; j++) {
             // start index
             uint32_t s = shp->panPartStart[j];
@@ -59,6 +56,15 @@ shape_load_countries(const char* filename) {
             for(uint32_t i=s; i<e; i++){
                 point_t p = (point_t){shp->padfX[i], shp->padfY[i]};
                 kv_push(point_t, shape, p);
+                // cumulitive average for center
+                if(k>=1.0) {
+                    shapes.center.x = (k-1.0)/k*shapes.center.x + p.x/k;
+                    shapes.center.y = (k-1.0)/k*shapes.center.y + p.y/k;
+                }else {
+                    shapes.center.x = p.x;
+                    shapes.center.y = p.y;
+                }
+                k+=1.0;
             }
             kv_push(shape_v, shapes, shape);
         }
@@ -87,7 +93,7 @@ shape_proj(
     
     shapes_prj.min = (point_t){ INFINITY, INFINITY};
     shapes_prj.max = (point_t){-INFINITY,-INFINITY};
-    
+    double k = 0.0;
     for(uint32_t s=0; s<shapes->n; s++) {
         shape_v* shape = &shapes->a[s];
         shape_v shape_prj;
@@ -102,6 +108,17 @@ shape_proj(
                 continue;
             }
 
+            // cumulitive average for center
+            if(k>=1.0) {
+                shapes_prj.center.x = (k-1.0)/k*shapes_prj.center.x + pnt.x/k;
+                shapes_prj.center.y = (k-1.0)/k*shapes_prj.center.y + pnt.y/k;
+            }else {
+                shapes_prj.center.x = pnt.x;
+                shapes_prj.center.y = pnt.y;
+            }
+            k+=1.0;
+
+            // new bounds
             if(pnt.x>shapes_prj.max.x) shapes_prj.max.x = pnt.x;
             if(pnt.y>shapes_prj.max.y) shapes_prj.max.y = pnt.y;
             if(pnt.x<shapes_prj.min.x) shapes_prj.min.x = pnt.x;

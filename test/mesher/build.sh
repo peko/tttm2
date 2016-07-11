@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dep="main.c glad.c gui.c types.c wire.c vbo.c shape.c"
+dep="main.c glad.c gui.c types.c wire.c vbo.c shape.c grid.c"
 
 clang                                             \
 `pkg-config --cflags glfw3 glu`                   \

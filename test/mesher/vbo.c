@@ -21,7 +21,6 @@ vbo_new(shapes_v* shapes) {
     for(uint32_t s=0; s<shapes->n; s++) {
         for(uint32_t p=0; p<shapes->a[s].n; p++) {
             point_t* pnt = &shapes->a[s].a[p];
-            // vertices[i++] = (vertex_t) {pnt->x, pnt->y, 1.0, 1.0, 1.0};
             vertices[i++] = (vertex_t) {pnt->x, pnt->y};
         }
     }
