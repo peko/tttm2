@@ -1,13 +1,6 @@
 #include "types.h"
 #include "vbo.h"
 
-typedef struct {
-    float x, y;
-    float r, g, b;
-} vertex_t;
-typedef kvec_t(vertex_t) vertices_v;
-
-
 vbo_t
 vbo_new(shapes_v* shapes) {
 
@@ -28,7 +21,8 @@ vbo_new(shapes_v* shapes) {
     for(uint32_t s=0; s<shapes->n; s++) {
         for(uint32_t p=0; p<shapes->a[s].n; p++) {
             point_t* pnt = &shapes->a[s].a[p];
-            vertices[i++] = (vertex_t) {pnt->x, pnt->y, 1.0, 1.0, 1.0};
+            // vertices[i++] = (vertex_t) {pnt->x, pnt->y, 1.0, 1.0, 1.0};
+            vertices[i++] = (vertex_t) {pnt->x, pnt->y};
         }
     }
 
@@ -41,7 +35,6 @@ vbo_new(shapes_v* shapes) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     return vbo;
 }
-
 
 void
 vbo_destroy(vbo_t* vbo) {

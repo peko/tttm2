@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 
 #include "types.h"
+#include "linmath.h"
 #include "shape.h"
 #include "gui.h"
 #include "wire.h"
@@ -51,8 +52,8 @@ main(int argc, char** argv) {
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     glfwSwapInterval(1);
 
-    strings_v names = shape_load_names("../../data/10m.dbf", "name_long");
-    countries       = shape_load_countries("../../data/10m.shp");
+    strings_v names = shape_load_names("../../data/110m.dbf", "name_long");
+    countries       = shape_load_countries("../../data/110m.shp");
 
     wire_init();
     gui_init(window, &names, on_country);
@@ -69,11 +70,11 @@ main(int argc, char** argv) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         if(country_vbo.id != 0)
-            wire_draw(&country_vbo, ratio, 0.0, 0.0, scale);
+            wire_draw(&country_vbo,(vec3){1.0,1.0,1.0}, ratio, 0.0, 0.0, scale);
 
         glfwPollEvents();
 
-        gui_logic();
+        gui_logic(width, height);
         gui_draw();
 
         glfwSwapBuffers(window);
@@ -119,12 +120,14 @@ on_scroll(GLFWwindow* window, double xoffset, double yoffset) {
 
 static void on_country(int cid) {
     
+    static char* from = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs";
+    static char  to[256];
+    
+    // clear old vbo
     if(country_vbo.id != 0) vbo_destroy(&country_vbo);
     
     shapes_v* country = &countries.a[cid];
     // projections
-    char* from = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs";
-    char  to[256];
     sprintf(to, "+proj=laea +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs", 
         country->center.y, country->center.x);
  

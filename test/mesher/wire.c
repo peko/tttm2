@@ -2,7 +2,6 @@
 
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
-#include "linmath.h"
 
 #include "wire.h"
 
@@ -10,7 +9,7 @@ static GLuint vertex_shader, fragment_shader, program;
 static char* vertex_shader_text;
 static char* fragment_shader_text;
 
-static GLint mvp_location, vpos_location, vcol_location;
+static GLint mvp_location, vpos_location, col_location;
 
 static void setup_shaders();
 static void load_shader(char* filename, char** buf);
@@ -22,7 +21,7 @@ wire_init() {
 
 // draw loop
 void 
-wire_draw(vbo_t* vbo, float ratio, float x, float y, float scale) {
+wire_draw(vbo_t* vbo, vec3 col, float ratio, float x, float y, float scale) {
 
     mat4x4 m, p, mvp;
 
@@ -32,11 +31,11 @@ wire_draw(vbo_t* vbo, float ratio, float x, float y, float scale) {
     // SET ATTRIBUTES
     glEnableVertexAttribArray(vpos_location);
     glVertexAttribPointer(vpos_location, 2, GL_FLOAT, GL_FALSE,
-                          sizeof(float) * 5, (void*) 0);
+                          sizeof(vertex_t), (void*) 0);
 
-    glEnableVertexAttribArray(vcol_location);
-    glVertexAttribPointer(vcol_location, 3, GL_FLOAT, GL_FALSE,
-                  sizeof(float) * 5, (void*) (sizeof(float) * 2));
+    //glEnableVertexAttribArray(vcol_location);
+    //glVertexAttribPointer(vcol_location, 3, GL_FLOAT, GL_FALSE,
+    //              sizeof(float) * 5, (void*) (sizeof(float) * 2));
 
     // SET VIEW
     mat4x4_identity(m);
@@ -50,6 +49,7 @@ wire_draw(vbo_t* vbo, float ratio, float x, float y, float scale) {
     glUseProgram(program);
     // send view matrix
     glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
+    glUniform3fv(col_location,  1, (const GLfloat*) col);
 
     // DRAW
     uint32_t start = 0;
@@ -65,7 +65,6 @@ wire_draw(vbo_t* vbo, float ratio, float x, float y, float scale) {
 
     // UNSET ATTRIBUTES
     glDisableVertexAttribArray(vpos_location);
-    glDisableVertexAttribArray(vcol_location);
 
     // UNSET BUFFER
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -119,6 +118,7 @@ setup_shaders(){
     glLinkProgram(program);
 
     mvp_location  = glGetUniformLocation(program, "MVP");
+    col_location  = glGetUniformLocation(program, "col");
+    
     vpos_location = glGetAttribLocation(program, "vPos");
-    vcol_location = glGetAttribLocation(program, "vCol");
 }

@@ -62,20 +62,26 @@ gui_init(
 
 
 void 
-gui_logic() {
+gui_logic(int width, int height) {
 
     static int selected_country = -1; 
     
     nk_glfw3_new_frame();
     struct nk_panel layout;
+    char title[256];
+    sprintf(title, "%d x %d", width, height);
 
-    if (nk_begin(ctx, &layout, "Countries", nk_rect(10, 10, 300, 400),
-        NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|
-        NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+    if (nk_begin(ctx, &layout, title, nk_rect(10, 10, 300, height-20),
+        NK_WINDOW_BORDER      | 
+        NK_WINDOW_MOVABLE     | 
+        NK_WINDOW_SCALABLE    |
+        NK_WINDOW_MINIMIZABLE | 
+        NK_WINDOW_TITLE       |
+        0)) {
         
         struct nk_panel tab;
 
-        nk_layout_row_dynamic(ctx, 300, 1);
+        nk_layout_row_dynamic(ctx, height-130, 1);
         if (nk_group_begin(ctx, &tab, "Group_Without_Border", 0)) {
             nk_layout_row_dynamic(ctx, 16, 1);
             for (int i = 0; i <country_names.n; ++i) {

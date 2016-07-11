@@ -15,5 +15,11 @@ typedef struct {
 } vbo_t;
 
 
+typedef struct {
+    float x, y;
+} vertex_t;
+typedef kvec_t(vertex_t) vertices_v;
+
+
 vbo_t vbo_new(shapes_v* shapes);
 void  vbo_destroy(vbo_t* vbo);
