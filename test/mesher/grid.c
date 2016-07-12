@@ -1,5 +1,6 @@
 
 #include "grid.h"
+#include "text.h"
 
 shapes_v 
 grid_make(const point_t* min, const point_t* max) {
@@ -19,8 +20,18 @@ grid_make(const point_t* min, const point_t* max) {
         shape_v line;
         kv_init(line);
         for(int y=0; y<=n*4; y++) {
-            point_t p = (point_t){min->x+x*dx, min->y+y*dy*0.25}; 
+            double px = min->x+x*dx;
+            double py = min->y+y*dy*0.25;
+            point_t p = (point_t){px, py}; 
             kv_push(point_t, line, p);
+
+            if(y%4==0) {
+                shapes_v number = text_int((int)fabs(py), px+w/100.0, py, w/100.0);  
+                for(uint32_t i=0; i<number.n; i++) 
+                    kv_push(shape_v, grid, number.a[i]);
+                kv_destroy(number);
+            }
+
         }
         kv_push(shape_v, grid, line);
     }
