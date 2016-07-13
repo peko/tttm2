@@ -77,6 +77,61 @@ end_loading:
     return countries;
 }
 
+shapes_v
+shape_load_globe(const char* filename) {
+
+    shapes_v globe;
+    kv_init(globe);
+
+    double  adfMinBound[4],
+            adfMaxBound[4];
+
+    // Read file
+    SHPHandle hSHP = SHPOpen( filename, "rb" );
+    if(hSHP == NULL) goto end_loading;
+
+    // Print shape bounds
+    int country_count, shapes_vype;
+    SHPGetInfo( hSHP, &country_count, &shapes_vype, adfMinBound, adfMaxBound );
+    
+    fprintf(stderr, "Load %d countries\n", country_count);
+    // Iterate through countries
+    for(int i = 0; i < country_count; i++ ) {
+                        
+        SHPObject *shp = SHPReadObject(hSHP, i);
+        if(shp == NULL) goto end_loading;
+
+        if(shp->nParts == 0) continue;
+
+        // first part starts at point 0
+        if(shp->panPartStart[0] != 0) goto end_loading;
+
+        // collect parts of country
+        uint32_t parts = shp->nParts;
+        for (uint32_t j=0; j<parts; j++) {
+            // start index
+            uint32_t s = shp->panPartStart[j];
+            // end index - start of next minus one, or end
+            uint32_t e = (j+1 < parts) ?
+                shp->panPartStart[j+1]:
+                shp->nVertices;
+            shape_v shape;
+            kv_init(shape);
+            // collect points of part
+            for(uint32_t i=s; i<e; i++){
+                point_t p = (point_t){shp->padfX[i], shp->padfY[i]};
+                kv_push(point_t, shape, p);
+            }
+            kv_push(shape_v, globe, shape);
+        }
+        SHPDestroyObject( shp );
+    }
+    SHPClose( hSHP );
+
+end_loading:
+    return globe;
+}
+
 
 // reproject shapes
 shapes_v

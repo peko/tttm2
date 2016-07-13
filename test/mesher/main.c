@@ -26,9 +26,12 @@ static void prev_country();
 static void set_country(int cid);
 
 static countries_v countries;
+static shapes_v globe;
 static strings_v names;
+
 static vbo_t grid_vbo    = (vbo_t){0};
 static vbo_t country_vbo = (vbo_t){0};
+static vbo_t globe_vbo   = (vbo_t){0};
 
 static int current_country = 0;
 
@@ -63,6 +66,7 @@ main(int argc, char** argv) {
 
     names = shape_load_names("../../data/10m.dbf", "name_long");
     countries = shape_load_countries("../../data/10m.shp");
+    globe = shape_load_globe("../../data/110m.shp");
 
     wire_init();
     gui_init(window, &names, on_country);
@@ -77,6 +81,9 @@ main(int argc, char** argv) {
 
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        if(globe_vbo.id != 0)
+            wire_draw(&globe_vbo,(vec3){0.15,0.15,0.15}, ratio, 0.0, 0.0, scale, true);
 
         if(grid_vbo.id != 0)
             wire_draw(&grid_vbo,(vec3){0.25,0.25,0.25}, ratio, 0.0, 0.0, scale, false);
@@ -96,6 +103,7 @@ main(int argc, char** argv) {
     if(grid_vbo.id    != 0) vbo_destroy(&grid_vbo);
 
     countries_destroy(&countries);
+    shapes_destroy(&globe);
     strings_destroy(&names);
 
     gui_cleanup();
@@ -164,10 +172,19 @@ set_country(int cid) {
     static char* from = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs";
     static char  to[256];
     
+    // projection
     shapes_v* country = &countries.a[cid];
     sprintf(to, "+proj=laea +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs", 
         country->center.y, country->center.x);
     
+
+    // GLOBE
+    shapes_v globe_prj = shape_proj(&globe, from, to);
+    if(globe_vbo.id != 0) vbo_destroy(&globe_vbo);
+    globe_vbo = vbo_new(&globe_prj);
+    shapes_destroy(&globe_prj);
+
+    // COUNTRY
     shapes_v country_prj = shape_proj(country, from, to);
     double w = (country_prj.max.x-country_prj.min.x);
     double h = (country_prj.max.y-country_prj.min.y);
