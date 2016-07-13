@@ -24,14 +24,6 @@ grid_make(const point_t* min, const point_t* max) {
             double py = min->y+y*dy*0.25;
             point_t p = (point_t){px, py}; 
             kv_push(point_t, line, p);
-
-            if(y%4==0) {
-                shapes_v number = text_int((int)fabs(py), px+w/100.0, py, w/100.0);  
-                for(uint32_t i=0; i<number.n; i++) 
-                    kv_push(shape_v, grid, number.a[i]);
-                kv_destroy(number);
-            }
-
         }
         kv_push(shape_v, grid, line);
     }
@@ -55,6 +47,12 @@ grid_make(const point_t* min, const point_t* max) {
             point_t p = (point_t){x, y < min->y ? min->y : y > max->y ? max->y : y};
             kv_push(point_t, line, p);
         }
+
+        shapes_v number = text_int(x, x, max->y+w/200.0, w/200.0, 2);  
+        for(uint32_t i=0; i<number.n; i++) 
+            kv_push(shape_v, grid, number.a[i]);
+        kv_destroy(number);
+        
         kv_push(shape_v, grid, line);
     }
 
@@ -66,6 +64,12 @@ grid_make(const point_t* min, const point_t* max) {
             point_t p = (point_t){x < min->x ? min->x : x > max->x ? max->x : x, y}; 
             kv_push(point_t, line, p);
         }
+
+        shapes_v number = text_int(y, max->x+w/200.0, y, w/200.0, 0);  
+        for(uint32_t i=0; i<number.n; i++) 
+            kv_push(shape_v, grid, number.a[i]);
+        kv_destroy(number);
+        
         kv_push(shape_v, grid, line);
     }
 
