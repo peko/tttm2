@@ -140,11 +140,12 @@ on_click(GLFWwindow* window, int button, int action, int mods) {
 
 static void 
 on_scroll(GLFWwindow* window, double xoffset, double yoffset) {
+    printf("%f %f\n", xoffset, yoffset);
+    scale *= 1.1*yoffset;
 }
 
 static void 
-on_country(int cid) {
-    
+on_country(int cid) { 
     current_country = cid;
     set_country(cid);
     printf("%d: %s\n",current_country, names.a[current_country]);
