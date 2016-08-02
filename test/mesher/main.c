@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
@@ -41,6 +42,8 @@ main(int argc, char** argv) {
 
     GLFWwindow* window;
 
+    printf("GLFW %d.%d.%d\n", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_REVISION);
+    
     glfwSetErrorCallback(on_error);
 
     if (!glfwInit())
