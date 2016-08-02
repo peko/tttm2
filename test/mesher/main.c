@@ -64,9 +64,9 @@ main(int argc, char** argv) {
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     glfwSwapInterval(1);
 
-    names = shape_load_names("../../data/10m.dbf", "name_long");
     countries = shape_load_countries("../../data/10m.shp");
     globe = shape_load_globe("../../data/110m.shp");
+    names = shape_load_names("../../data/10m.dbf", "name_long");
 
     wire_init();
     gui_init(window, &names, on_country);
