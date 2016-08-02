@@ -26,6 +26,8 @@ static void next_country();
 static void prev_country();
 static void set_country(int cid);
 
+static void mesh_country();
+
 static countries_v countries;
 static shapes_v globe;
 static strings_v names;
@@ -43,7 +45,7 @@ main(int argc, char** argv) {
     GLFWwindow* window;
 
     printf("GLFW %d.%d.%d\n", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_REVISION);
-    
+
     glfwSetErrorCallback(on_error);
 
     if (!glfwInit())
@@ -131,6 +133,8 @@ on_key(GLFWwindow* window, int key, int scancode, int action, int mods) {
         next_country();
     if (key == 44 && action == GLFW_PRESS)
         prev_country();
+    if (key == GLFW_KEY_M && action == GLFW_PRESS)
+        mesh_country();
 }
 
 static void 
@@ -207,4 +211,11 @@ set_country(int cid) {
 
     shapes_destroy(&grid);
     shapes_destroy(&grid_prj);
+}
+
+///////////////////////////////////////////////////////////////
+
+static void
+mesh_country() {
+
 }
