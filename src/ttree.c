@@ -10,9 +10,9 @@ tnode_new(triangle_t t) {
     return node;
 }
 
-void 
+void
 tnode_free(tnode_t* node) {
-    
+
     if(node == NULL) return;
 
     if(node->children[0] != NULL) tnode_free(node->children[0]);
@@ -42,7 +42,7 @@ ttree_new(point_t p[3]) {
 
 void
 ttree_free(ttree_t* tree) {
-    
+
     if(tree == NULL) return;
 
     tnode_free(tree->root);
@@ -54,7 +54,7 @@ ttree_t*
 ttree_from_points(const points_v p) {
 
     point_t o, s;
-        
+
     { // max/min shadowing
         point_t min = (point_t) { HUGE_VAL, HUGE_VAL};
         point_t max = (point_t) {-HUGE_VAL,-HUGE_VAL};
@@ -69,7 +69,7 @@ ttree_from_points(const points_v p) {
         s = (point_t) { max.x-min.x     ,  max.y-min.y     };
     }
     double r = s.x>s.y ? s.x : s.y;
-    
+
     point_t t[3];
     triangle_by_incircle(t, o, r);
 
@@ -111,7 +111,7 @@ ttree_from_mesh(
         s = (point_t) { max.x-min.x     ,  max.y-min.y     };
     }
     double r = s.x>s.y ? s.x : s.y;
-    
+
     point_t t[3];
     triangle_by_incircle(t, o, r);
 
@@ -129,7 +129,7 @@ ttree_split_by_mesh(
     points_v*    points,
     triangles_v* triangles,
     uint8_t      depth) {
-    
+
     point_t a1, b1, c1;
     point_t a2, b2, c2;
     a1 = tt->points.a[tn->triangle.a];
@@ -171,7 +171,7 @@ ttree_split_by_mesh(
     for(uint8_t i=0; i<4; i++) {
         if(tr[i].n>0){
             tn->children[i] = tnode_new(triangle_new(&tt->points, cr[i][0], cr[i][1], cr[i][2]));
-        } 
+        }
     }
 
     if(depth>0) {
@@ -190,10 +190,10 @@ ttree_split_by_mesh(
 
 }
 
-void 
+void
 ttree_split_node(
-    ttree_t* tt, 
-    tnode_t* tn, 
+    ttree_t* tt,
+    tnode_t* tn,
     point_t* p){
 
     point_t a,b,c;
@@ -237,13 +237,13 @@ ttree_split_node(
         else if(cid == 3)
             *child = tnode_new(triangle_new(&tt->points, &c, &ca, &bc));
     } else {
-        ttree_split_node(tt, *child, p);        
+        ttree_split_node(tt, *child, p);
     }
 }
 
 void
 ttree_write(
-    ttree_t* tree, 
+    ttree_t* tree,
     FILE*    fp){
     tnode_write(tree->root, tree, 0, fp);
 }
@@ -251,21 +251,21 @@ ttree_write(
 static void
 triangle_write(
     triangle_t* t,
-    points_v*   p, 
+    points_v*   p,
     uint32_t    d,
     FILE*       fp){
-    
+
     point_t a,b,c;
     a = p->a[t->a];
     b = p->a[t->b];
     c = p->a[t->c];
 
-    fprintf(fp, "%f %f %d %d\n", a.x, a.y, d, d); 
-    fprintf(fp, "%f %f %d %d\n", b.x, b.y, d, d); 
-    fprintf(fp, "%f %f %d %d\n", c.x, c.y, d, d); 
-    // fprintf(fp, "%f %f %d %d\n", a.x, a.y, d, d); 
-    fprintf(fp, "\n"); 
-} 
+    fprintf(fp, "%f %f %d %d\n", a.x, a.y, d, d);
+    fprintf(fp, "%f %f %d %d\n", b.x, b.y, d, d);
+    fprintf(fp, "%f %f %d %d\n", c.x, c.y, d, d);
+    // fprintf(fp, "%f %f %d %d\n", a.x, a.y, d, d);
+    fprintf(fp, "\n");
+}
 
 void
 tnode_write(
